@@ -1,5 +1,5 @@
+import 'package:coach/components/themed_button.dart';
 import 'package:coach/screens/overview_screen.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ObjectiveScreen extends StatefulWidget {
@@ -25,10 +25,7 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Text('Your Objective'),
-            TextButton(
-              onPressed: _navigateToOverview,
-              child: const Text("Continue"),
-            )
+            ThemedButton(title: 'Continue', onPressed: _navigateToOverview),
           ],
         ),
       ),

@@ -1,3 +1,4 @@
+import 'package:coach/components/themed_button.dart';
 import 'package:coach/screens/objective_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -31,29 +32,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(50),
-                ),
-                onPressed: _authCalendar,
-                child: const Text("Authenticate Google Calendar"),
-              ),
+              ThemedButton(
+                  title: 'Authenticate Google Calendar',
+                  onPressed: _authCalendar),
               const SizedBox(height: 16),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(50),
-                ),
-                onPressed: _authWhoop,
-                child: const Text("Authenticate WHOOP"),
-              ),
+              ThemedButton(title: 'Authenticate WHOOP', onPressed: _authWhoop),
               const SizedBox(height: 128),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(50),
-                ),
-                onPressed: _navigateToObjective,
-                child: const Text("Continue"),
-              )
+              ThemedButton(title: 'Continue', onPressed: _navigateToObjective),
             ],
           ),
         ),
