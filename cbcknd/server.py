@@ -46,7 +46,17 @@ def create_app():
             print(workout)
             # trigger LLM Update
 
+            activity_lookup = {
+                -1: "Activity",
+                0: "Running",
+                1: "Cycling", 
+                32: "Squash"
+            }
+            activity = activity_lookup[workout["sport_id"]]
+            workout["sport_name"] = activity
+
             del workout["score_state"]
+            del workout["sport_id"]
 
             whoop_update = {
                 "update": "whoop training finished",
