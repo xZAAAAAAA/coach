@@ -12,7 +12,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 # If modifying these scopes, delete the file token.json.
-SCOPES = ["https://www.googleapis.com/auth/calendar" ]
+SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
 
 
 def main():
@@ -220,7 +220,6 @@ def get_events_at_days(service, day_str=None, n_days=7):
         today = now.replace(hour=0, minute=0, second=0, microsecond=0)
         day_str = today.strftime("%d.%m.%Y")
 
-
     events_day_dict = {}
 
     for i in range(n_days):
@@ -262,7 +261,6 @@ def add_event(service, day_str, time_str, dur_str, title, decr=""):
 # 
 #
 if __name__ == "__main__":
-    # main()
     # get_gc_events(get_gc_service())
     # print(get_events_at_day(get_gc_service(), "18.09.2023"))
     print(get_events_at_days(get_gc_service()))
