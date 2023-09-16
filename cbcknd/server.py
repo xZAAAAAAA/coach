@@ -22,6 +22,13 @@ llm_responses = []
 is_setup = False
 
 
+@app.before_first_request
+def before_first_request():
+    print("before_first_request")
+    load_tokens()
+    init_events()
+
+
 @app.route("/")
 def hello_world():
     return "Hello, World!"
