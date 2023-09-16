@@ -182,10 +182,13 @@ def receive_adapt_test():
 
 @app.route("/state", methods=["POST", "GET"])
 def state():
+    global llm_responses, user_profile
 
-    with open("tp.json", "r") as fp:
-        tp = json.load(fp)
-
+    if len(llm_responses) == 0:
+        with open("tp.json", "r") as fp:
+            tp = json.load(fp)
+    else:
+        tp = llm_responses[-1].get_trainings_plan()
     tp["user"] = user_profile.to_dict()
 
     return jsonify(tp)
