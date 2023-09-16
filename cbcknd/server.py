@@ -44,7 +44,7 @@ def create_app():
         ev_id = json_data.get("id", "")
         ev_tye = json_data.get("type", "")
 
-        if ev_tye == "workout.update":
+        if ev_tye == "workout.updated":
             wc = WhoopClient(tokens_dict["whoop"])
             workout = wc.get_workout_by_id(ev_id)
             print(workout)
