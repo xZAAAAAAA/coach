@@ -11,7 +11,7 @@ class User:
     def __init__(self):
         self.name = "User"
         self.age = 0
-        self.weight = 70
+        self.weight = 70.0
         self.height = 1.7
         self.training_objective = "maintain fitness"
         self.fitness_level = "average"
@@ -77,16 +77,16 @@ class User:
         # Create a dictionary of the object's attributes
         data = {
             "name": self.name,
-            "age": self.age,
-            "weight": self.weight,
-            "height": self.height,
+            "age": int(self.age),
+            "weight": float(self.weight),
+            "height": float(self.height),
             "training_objective": self.training_objective,
             "fitness_level": self.fitness_level,
             "sports": self.sports,
-            "last_sleep_score": self.last_sleep_score,
-            "avg_sleep_score": self.avg_sleep_score,
-            "last_recovery_score": self.last_recovery_score,
-            "avg_recovery_score": self.avg_recovery_score,
+            "last_sleep_score": float(self.last_sleep_score),
+            "avg_sleep_score": float(self.avg_sleep_score),
+            "last_recovery_score": float(self.last_recovery_score),
+            "avg_recovery_score": float(self.avg_recovery_score),
         }
 
         # Return the dictionary
