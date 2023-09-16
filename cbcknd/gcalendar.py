@@ -213,8 +213,14 @@ def get_events_at_day(service, day_str):
     return str_list
 
 
-def get_events_at_days(service, day_str, n_days=7):
+def get_events_at_days(service, day_str=None, n_days=7):
     
+    if day_str is None:
+        now = datetime.datetime.now()
+        today = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        day_str = today.strftime("%d.%m.%Y")
+
+
     events_day_dict = {}
 
     for i in range(n_days):
@@ -259,5 +265,5 @@ if __name__ == "__main__":
     # main()
     # get_gc_events(get_gc_service())
     # print(get_events_at_day(get_gc_service(), "18.09.2023"))
-    print(get_events_at_days(get_gc_service(), "18.09.2023"))
+    print(get_events_at_days(get_gc_service()))
     # add_event(get_gc_service(), "18.09.2023", "12:00:00", "30", "test")
