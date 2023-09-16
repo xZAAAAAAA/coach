@@ -7,7 +7,7 @@ from llm import get_initial_training_plan, get_updated_training_plan
 
 from gcalendar import get_gc_service, get_gc_events, get_events_at_days, add_event, clear_coach_events
 
-from whoopy import WhoopClient
+from whoopy import WhoopClient, activity_lookup
 from user_model import User
 
 
@@ -52,12 +52,7 @@ def create_app():
             print(workout)
             # trigger LLM Update
 
-            activity_lookup = {
-                -1: "Activity",
-                0: "Running",
-                1: "Cycling", 
-                32: "Squash"
-            }
+
             activity = activity_lookup[workout["sport_id"]]
             workout["sport_name"] = activity
 
