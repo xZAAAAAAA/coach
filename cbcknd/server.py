@@ -14,7 +14,7 @@ from response_model import ResponseModel
 def create_app():
     app = flask.Flask(__name__)
 
-    global event_dict, gc_service, tokens_dict, setup_dict, user_messages, user_profile, llm_responses, is_setup
+    global event_dict, gc_service, tokens_dict, setup_dict, user_messages, user_profile, llm_responses, is_setup, blocked_time_slots
 
     event_dict = {}
     gc_service = None
@@ -24,6 +24,7 @@ def create_app():
     user_profile = User()
     llm_responses = []
     is_setup = False
+    blocked_time_slots = {}
 
     @app.route("/")
     def hello_world():
@@ -31,6 +32,7 @@ def create_app():
 
     @app.route("/whoop", methods=["POST", "GET"])
     def whoop():
+        global llm_responses, blocked_time_slots
         json_data = request.json()
 
         print(request.headers)
@@ -71,7 +73,7 @@ def create_app():
                     user_message="",
                     last_response=last_response,
                     whoop_update=whoop_update,
-                    blocked_time_slots=[]
+                    blocked_time_slots=blocked_time_slots
                 )
             )
             print(response.__dict__)
@@ -82,6 +84,7 @@ def create_app():
 
     @app.route("/calupdates", methods=["POST", "GET"])
     def calupdates():
+        global llm_responses, blocked_time_slots
         json_data = request.data.decode("utf-8")
 
         print(request.headers)
@@ -92,7 +95,11 @@ def create_app():
         print(updated_evs)
         # trigger LLM Update
 
-        blocked_time_slots = []
+        blocked_time_slots = {
+            "18.09.2023": ["0:00 - 13:00", "16:00 - 23:00"],
+            "19.09.2023": ["0:00 - 12:00", "14:30 - 23:00"],
+            "20.09.2023": ["0:00 - 11:00", "13:00 - 23:00"]
+            }
 
         last_response = llm_responses[-1]
         print("Updating training plan...")
@@ -131,10 +138,10 @@ def create_app():
 
         return "Hello, Tokens!"
 
-
+    
     @app.route("/setup", methods=["POST"])
     def receive_setup():
-        global setup_dict, user_profile, llm_responses, tokens_dict, is_setup
+        global setup_dict, user_profile, llm_responses, tokens_dict, is_setup, blocked_time_slots
 
         user_profile.is_default = True
         # is_setup = False
@@ -173,7 +180,7 @@ def create_app():
             print("No Whoop Token available. Using default user profile.")
 
         print("Generating initial training plan...")
-        response = ResponseModel(get_initial_training_plan(user_profile))
+        response = ResponseModel(get_initial_training_plan(user_profile, blocked_time_slots))
         print(response.__dict__)
         llm_responses.append(response)
 
@@ -184,7 +191,7 @@ def create_app():
 
     @app.route("/adapt", methods=["POST"])
     def receive_adapt():
-        global user_messages, llm_responses
+        global user_messages, llm_responses, blocked_time_slots
 
         json_data = request.json
         print(json_data)
@@ -195,7 +202,7 @@ def create_app():
         if len(llm_responses) == 0:
             print("SHIT HAPPENED! NO EXISTING TRAINING PLAN AVAILABLE")
             print("Generating initial training plan...")
-            llm_responses.append(get_initial_training_plan(user_profile))
+            llm_responses.append(get_initial_training_plan(user_profile, blocked_time_slots))
         else:
             last_user_message = user_messages[-1] if len(user_messages) > 0 else ""
             last_response = llm_responses[-1]
@@ -205,6 +212,8 @@ def create_app():
                     user_profile=user_profile,
                     user_message=last_user_message,
                     last_response=last_response,
+                    whoop_update={},
+                    blocked_time_slots=blocked_time_slots
                 )
             )
             print(response.__dict__)
@@ -229,7 +238,7 @@ def create_app():
 
     @app.route("/adapt-test", methods=["GET", "POST"])
     def receive_adapt_test():
-        global llm_responses
+        global llm_responses, blocked_time_slots
 
         user_messages = ["My knee hurts!"]
 
@@ -248,6 +257,8 @@ def create_app():
                     user_profile=user_profile,
                     user_message=last_user_message,
                     last_response=last_response,
+                    whoop_update={},
+                    blocked_time_slots=blocked_time_slots
                 )
             )
             print(response.__dict__)
