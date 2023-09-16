@@ -36,7 +36,7 @@ def create_app():
 
     @app.route("/whoop", methods=["POST", "GET"])
     def whoop():
-        global llm_responses, blocked_time_slots
+        global llm_responses, blocked_time_slots, tokens_dict
         json_data = request.json
 
         print(json_data)
