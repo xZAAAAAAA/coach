@@ -1,9 +1,11 @@
 import flask
 import json
-from flask import request, jsonify
+from flask import request
 
 from gcalendar import get_gc_service, get_gc_events
+
 from whoopy import WhoopClient
+from user_model import User
 
 app = flask.Flask(__name__)
 
@@ -12,6 +14,7 @@ gc_service = None
 tokens_dict = {}
 setup_dict = {}
 user_messages = []
+user_profile = User()
 
 
 @app.route("/")
@@ -77,7 +80,7 @@ def receive_tokens():
 
 @app.route("/setup", methods=["POST"])
 def receive_setup():
-    global setup_dict
+    global setup_dict, user_profile
 
     json_data = request.json
     print(json_data)
@@ -89,6 +92,21 @@ def receive_setup():
         setup_dict["sports"] = json_data["sports"]
     if "objective" in json_data:
         setup_dict["objective"] = json_data["objective"]
+
+    user_profile.sports = setup_dict["sports"]
+    user_profile.training_objective = setup_dict["objective"]
+
+    if 'whoop' in tokens_dict and tokens_dict['whoop'] != '':
+        wc = WhoopClient(tokens_dict["whoop"])
+        
+        user_profile.name = wc.get_profile()["first_name"]
+        
+        measurements = wc.get_body_measurement()
+        user_profile.age = 30
+        user_profile.weight = measurements["weight_kilogram"]
+        user_profile.height = measurements["height_meters"]
+
+        user_profile.calc_fitness_level(wc.get_workouts())
 
     return "Hello, Setup!"
 
