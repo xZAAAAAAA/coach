@@ -33,7 +33,7 @@ OUTPUT_FORMAT = """
     {"training_plan_title": [<TRAINING PLAN TITLE>], "summary": [<TRAINING PLAN SUMMARY>], "explanation": [<TRAINING PLAN EXPLANATION>], "workouts" [<LIST OF SINGLE WORKOUTS>]}
     
     The <TRAINING PLAN TITLE> should be a short title of the training. It should contain information of the planned workouts. 
-    The <TRAINING PLAN SUMMARY> should summarize the goals and the main activities of the training plan and explain why the training is a good fit to the user's needs.
+    The <TRAINING PLAN SUMMARY> should summarize the goals and the main activities and explain why the training is a good fit to the user's needs.
     The <TRAINING PLAN EXPLANATION> should summarize the upcoming workout sessions and explain why they are effective.
     The <LIST OF SINGLE WORKOUTS> should contain information about the workouts upcoming in the next 7 days. Each of the workouts should be in the JSON format with the following keys:
     "title", "summary", "sport_type", "date", "duration", "start_time", "intensity".
