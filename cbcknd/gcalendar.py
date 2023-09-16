@@ -12,7 +12,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 # If modifying these scopes, delete the file token.json.
-SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
+SCOPES = ["https://www.googleapis.com/auth/calendar" ]
 
 
 def main():
@@ -213,8 +213,34 @@ def get_events_at_day(service, day_str):
     return ", ".join(str_list)
 
 
+def add_event(service, day_str, time_str, dur_str, title, decr=""):
+
+    start_obj = datetime.datetime.strptime(day_str + " " + time_str, "%d.%m.%Y %H:%M:%S")
+
+    end_obj = start_obj + datetime.timedelta(minutes=int(dur_str))
+
+    event = {
+        'summary': title,
+        'description': decr,
+        'start': {
+            'dateTime': start_obj.isoformat(),
+            'timeZone': "Europe/Berlin",
+        },
+        'end': {
+            'dateTime': end_obj.isoformat(),
+            'timeZone': 'Europe/Berlin',
+        },
+        'reminders': {
+            'useDefault': True,
+        },
+    }
+
+    event = service.events().insert(calendarId='primary', body=event).execute()
+
 # 
 #
 if __name__ == "__main__":
+    # main()
     # get_gc_events(get_gc_service())
-    print(get_events_at_day(get_gc_service(), "18.09.2023"))
+    # print(get_events_at_day(get_gc_service(), "18.09.2023"))
+    add_event(get_gc_service(), "18.09.2023", "12:00:00", "30", "test")
