@@ -96,6 +96,10 @@ class WhoopClient:
             )
         else:
             raise ValueError("Invalid method")
+        
+        if api_call_response.status_code != 200:
+            print(api_call_response)
+            # raise ValueError("Invalid response code")
 
         return api_call_response.json()
 
