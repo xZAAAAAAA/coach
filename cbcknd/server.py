@@ -1,4 +1,5 @@
 import flask
+import json
 from flask import request, jsonify
 
 from gcalendar import get_gc_service, get_gc_events
@@ -7,6 +8,10 @@ app = flask.Flask(__name__)
 
 event_dict = {}
 gc_service = None
+tokens_dict = {}
+setup_dict = {}
+user_messages = []
+
 
 @app.route('/')
 def hello_world():
@@ -25,6 +30,51 @@ def calupdates():
     print(updated_evs)
 
     return 'Hello, World2!'
+
+
+@app.route('/tokens', methods=['POST'])
+def receive_tokens():
+    global tokens_dict
+    json_data = json.loads(request.data.decode('utf-8'))
+    print(json_data)
+
+    keys = ["whoop", "calendar"]
+    for k in keys:
+        tokens_dict[k] = ""
+        if k in json_data:
+            tokens_dict[k] = json_data[k]
+        else:
+            print("no token received for " + k)
+    return 'Hello, Tokens!'
+
+
+@app.route('/setup', methods=['POST'])
+def receive_setup():
+    global setup_dict
+    json_data = json.loads(request.data.decode('utf-8'))
+    print(json_data)
+    
+    setup_dict["sports"] = []
+    setup_dict["objective"] = ""
+
+    if "sports" in json_data:
+        setup_dict["sports"] = json_data["sports"]
+    if "objective" in json_data:
+        setup_dict["objective"] = json_data["objective"]
+
+    return 'Hello, Setup!'
+
+
+@app.route('/adapt', methods=['POST'])
+def receive_adapt():
+    global user_messages
+    json_data = json.loads(request.data.decode('utf-8'))
+    print(json_data)
+
+    if "text" in json_data:
+        user_messages.append(json_data["text"])
+
+    return 'Hello, Adapt!'
 
 
 def init_events():
