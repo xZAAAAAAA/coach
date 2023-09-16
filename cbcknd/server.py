@@ -15,6 +15,8 @@ def create_app():
 
     app = flask.Flask(__name__)
 
+    global event_dict, gc_service, tokens_dict, setup_dict, user_messages, user_profile, llm_responses, is_setup
+
     event_dict = {}
     gc_service = None
     tokens_dict = {}
@@ -67,6 +69,7 @@ def create_app():
 
     @app.route("/tokens", methods=["POST"])
     def receive_tokens():
+        global tokens_dict
 
         json_data = request.json
         print(json_data)
@@ -87,6 +90,7 @@ def create_app():
 
     @app.route("/setup", methods=["POST"])
     def receive_setup():
+        global setup_dict, user_profile, llm_responses, tokens_dict, is_setup
 
         user_profile.is_default = True
         # is_setup = False
@@ -136,6 +140,7 @@ def create_app():
 
     @app.route("/adapt", methods=["POST"])
     def receive_adapt():
+        global user_messages, llm_responses
 
         json_data = request.json
         print(json_data)
@@ -159,7 +164,7 @@ def create_app():
 
     @app.route("/setup-test", methods=["GET", "POST"])
     def receive_setup_test():
-
+        global setup_dict, user_profile, llm_responses
         print("Generating initial training plan...")
         response = ResponseModel(get_initial_training_plan(user_profile))
         print(response.__dict__)
@@ -170,6 +175,7 @@ def create_app():
 
     @app.route("/adapt-test", methods=["GET", "POST"])
     def receive_adapt_test():
+        global llm_responses
 
         user_messages = ["My knee hurts!"]
 
@@ -192,6 +198,7 @@ def create_app():
 
     @app.route("/state", methods=["POST", "GET"])
     def state():
+        global llm_responses, user_profile, is_setup
 
         if not is_setup:
             return jsonify({})
@@ -213,7 +220,7 @@ def create_app():
 
 
     def load_tokens():
-
+        global tokens_dict
         try:
             with open("c_w_tokens.json", "r") as fp:
                 tokens_dict = json.load(fp)
@@ -223,6 +230,7 @@ def create_app():
 
 
     def init_events():
+        global gc_service, event_dict
 
         gc_service = get_gc_service()
         gc_events = get_gc_events(gc_service)
@@ -232,6 +240,7 @@ def create_app():
 
 
     def get_updated_events():
+        global gc_service, event_dict
 
         gc_events = get_gc_events(gc_service)
 
@@ -247,12 +256,15 @@ def create_app():
 
         return updated_events
 
+
+
     load_tokens()
     init_events()
+
 
     return app
 
 
 if __name__ == "__main__":
     app = create_app()
-    app.run(host="0.0.0.0", port=5055)
+    app.run(host="0.0.0.0")
