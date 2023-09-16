@@ -159,7 +159,7 @@ def get_gc_events(service):
         return []
     # Call the Calendar API
     now = datetime.datetime.utcnow().isoformat() + "Z"  # 'Z' indicates UTC time
-    print("Getting the upcoming 10 events")
+    # print("Getting the upcoming 10 events")
     events_result = (
         service.events()
         .list(
@@ -241,7 +241,7 @@ def add_event(service, day_str, time_str, dur_str, title, decr=""):
     end_obj = start_obj + datetime.timedelta(minutes=int(dur_str))
 
     event = {
-        'summary': title,
+        'summary': "[COACH] " + title,
         'description': decr,
         'start': {
             'dateTime': start_obj.isoformat(),
@@ -258,10 +258,19 @@ def add_event(service, day_str, time_str, dur_str, title, decr=""):
 
     event = service.events().insert(calendarId='primary', body=event).execute()
 
+
+def clear_coach_events(service):
+    events = get_gc_events(service)
+
+    for event in events:
+        if "[COACH]" in event["summary"]:
+            service.events().delete(calendarId='primary', eventId=event["id"]).execute()
+
 # 
 #
 if __name__ == "__main__":
     # get_gc_events(get_gc_service())
     # print(get_events_at_day(get_gc_service(), "18.09.2023"))
-    print(get_events_at_days(get_gc_service()))
-    # add_event(get_gc_service(), "18.09.2023", "12:00:00", "30", "test")
+    # print(get_events_at_days(get_gc_service()))
+    # add_event(get_gc_service(), "18.09.2023", "14:00:00", "120", "test")
+    clear_coach_events(get_gc_service())
