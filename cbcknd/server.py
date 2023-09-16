@@ -13,14 +13,15 @@ tokens_dict = {}
 setup_dict = {}
 user_messages = []
 
-@app.route('/')
+
+@app.route("/")
 def hello_world():
-        return 'Hello, World!'
+    return "Hello, World!"
 
 
-@app.route('/whoop', methods=['POST', "GET"])
+@app.route("/whoop", methods=["POST", "GET"])
 def whoop():
-    json_data = request.data.decode('utf-8')
+    json_data = request.json()
 
     print(request.headers)
 
@@ -33,13 +34,14 @@ def whoop():
         wc = WhoopClient(tokens_dict["whoop"])
         workout = wc.get_workout_by_id(ev_id)
         print(workout)
-        #trigger LLM Update
+        # trigger LLM Update
 
-    return 'Hello, World3!'
+    return "Hello, World3!"
 
-@app.route('/calupdates', methods=['POST', "GET"])
+
+@app.route("/calupdates", methods=["POST", "GET"])
 def calupdates():
-    json_data = request.data.decode('utf-8')
+    json_data = request.data.decode("utf-8")
 
     print(request.headers)
 
@@ -47,15 +49,16 @@ def calupdates():
 
     updated_evs = get_updated_events()
     print(updated_evs)
-    #trigger LLM Update
+    # trigger LLM Update
 
-    return 'Hello, World2!'
+    return "Hello, World2!"
 
 
-@app.route('/tokens', methods=['POST'])
+@app.route("/tokens", methods=["POST"])
 def receive_tokens():
     global tokens_dict
-    json_data = json.loads(request.data.decode('utf-8'))
+
+    json_data = request.json
     print(json_data)
 
     keys = ["whoop", "calendar"]
@@ -65,15 +68,20 @@ def receive_tokens():
             tokens_dict[k] = json_data[k]
         else:
             print("no token received for " + k)
-    return 'Hello, Tokens!'
+
+    with open("c_w_tokens.json", "w") as fp:
+        json.dump(tokens_dict, fp)
+
+    return "Hello, Tokens!"
 
 
-@app.route('/setup', methods=['POST'])
+@app.route("/setup", methods=["POST"])
 def receive_setup():
     global setup_dict
-    json_data = json.loads(request.data.decode('utf-8'))
+
+    json_data = request.json
     print(json_data)
-    
+
     setup_dict["sports"] = []
     setup_dict["objective"] = ""
 
@@ -82,30 +90,41 @@ def receive_setup():
     if "objective" in json_data:
         setup_dict["objective"] = json_data["objective"]
 
-    return 'Hello, Setup!'
+    return "Hello, Setup!"
 
 
-@app.route('/adapt', methods=['POST'])
+@app.route("/adapt", methods=["POST"])
 def receive_adapt():
     global user_messages
-    json_data = json.loads(request.data.decode('utf-8'))
+
+    json_data = request.json
     print(json_data)
 
     if "text" in json_data:
         user_messages.append(json_data["text"])
 
-    return 'Hello, Adapt!'
+    return "Hello, Adapt!"
+
+
+def load_tokens():
+    global tokens_dict
+    try:
+        with open("c_w_tokens.json", "r") as fp:
+            tokens_dict = json.load(fp)
+    except Exception:
+        print("no tokens file found")
+        tokens_dict = {}
 
 
 def init_events():
-     global gc_service, event_dict
+    global gc_service, event_dict
 
-     gc_service = get_gc_service()
+    gc_service = get_gc_service()
+    gc_events = get_gc_events(gc_service)
 
-     gc_events = get_gc_events(gc_service)
+    for event in gc_events:
+        event_dict[event["id"]] = event
 
-     for event in gc_events:
-          event_dict[event['id']] = event
 
 def get_updated_events():
     global gc_service, event_dict
@@ -115,17 +134,17 @@ def get_updated_events():
     updated_events = []
 
     for event in gc_events:
-        if event['id'] not in event_dict:
+        if event["id"] not in event_dict:
             updated_events.append(event)
-            event_dict[event['id']] = event
-        elif event_dict[event['id']]['updated'] != event['updated']:
+            event_dict[event["id"]] = event
+        elif event_dict[event["id"]]["updated"] != event["updated"]:
             updated_events.append(event)
-            event_dict[event['id']] = event
+            event_dict[event["id"]] = event
 
     return updated_events
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+    load_tokens()
     init_events()
-    app.run(host='0.0.0.0')
-
+    app.run(host="0.0.0.0")
