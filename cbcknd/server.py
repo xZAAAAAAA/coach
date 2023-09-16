@@ -86,47 +86,37 @@ def create_app():
         return "Hello, World4!"
 
 
-    @app.route("/calupdates", methods=["POST", "GET"])
-    def calupdates():
+    # @app.route("/calupdates", methods=["POST", "GET"])
+    # def calupdates():
 
-        print(session.get("cal_enter"), "xD")
+    #     global llm_responses, blocked_time_slots, last_calendar_update
 
-        global llm_responses, blocked_time_slots, last_calendar_update
+    #     if time.time() - last_calendar_update < 60:
+    #         return ""
 
-        if time.time() - last_calendar_update < 60:
-            return ""
+    #     updated_evs = get_updated_events()
+    #     print(updated_evs)
+    #     # trigger LLM Update
 
-        json_data = request.data.decode("utf-8")
+    #     if len(updated_evs) == 0:
+    #         return ""
 
-        print(request.headers)
+    #     # blocked_time_slots = get_events_at_days(gc_service)
+    #     # if len(llm_responses) > 0:
+    #     #     last_response = llm_responses[-1]
+    #     #     print("Updating training plan...")
+    #     #     response = get_updated_training_plan(
+    #     #             user_profile=user_profile,
+    #     #             user_message="",
+    #     #             last_response=last_response,
+    #     #             whoop_update={},
+    #     #             blocked_time_slots=blocked_time_slots
+    #     #     )
+    #     #     print(response.__dict__)
+    #     #     update_calendar(response)
+    #     #     llm_responses.append(response)
 
-        print(json_data)
-
-        time.sleep(2)
-
-        updated_evs = get_updated_events()
-        print(updated_evs)
-        # trigger LLM Update
-
-        if len(updated_evs) == 0:
-            return ""
-
-        # blocked_time_slots = get_events_at_days(gc_service)
-        # if len(llm_responses) > 0:
-        #     last_response = llm_responses[-1]
-        #     print("Updating training plan...")
-        #     response = get_updated_training_plan(
-        #             user_profile=user_profile,
-        #             user_message="",
-        #             last_response=last_response,
-        #             whoop_update={},
-        #             blocked_time_slots=blocked_time_slots
-        #     )
-        #     print(response.__dict__)
-        #     update_calendar(response)
-        #     llm_responses.append(response)
-
-        return "Hello, World2!"
+    #     return "Hello, World2!"
     
 
     @app.route("/tokens", methods=["POST"])
