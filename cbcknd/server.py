@@ -119,6 +119,10 @@ def receive_setup():
         user_profile.update_recovery_scores(wc.get_recoveries())
         user_profile.is_default = False
 
+        print("Loaded User Profile:", user_profile.to_dict())
+    else:
+        print("No Whoop Token available. Using default user profile.")
+
     print("Generating initial training plan...")
     response = ResponseModel(get_initial_training_plan(user_profile))
     print(response)
