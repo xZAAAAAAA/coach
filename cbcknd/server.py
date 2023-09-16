@@ -19,6 +19,7 @@ setup_dict = {}
 user_messages = []
 user_profile = User()
 llm_responses = []
+is_setup = False
 
 
 @app.route("/")
@@ -84,7 +85,10 @@ def receive_tokens():
 
 @app.route("/setup", methods=["POST"])
 def receive_setup():
-    global setup_dict, user_profile, llm_responses, tokens_dict
+    global setup_dict, user_profile, llm_responses, tokens_dict, is_setup
+
+    user_profile.is_default = True
+    is_setup = False
 
     json_data = request.json
     print(json_data)
@@ -113,11 +117,14 @@ def receive_setup():
         user_profile.calc_fitness_level(wc.get_workouts())
         user_profile.update_sleeps_scores(wc.get_sleeps())
         user_profile.update_recovery_scores(wc.get_recoveries())
+        user_profile.is_default = False
 
     print("Generating initial training plan...")
     response = ResponseModel(get_initial_training_plan(user_profile))
     print(response)
     llm_responses.append(response)
+
+    is_setup = True
 
     return "Hello, Setup!"
 
@@ -182,7 +189,10 @@ def receive_adapt_test():
 
 @app.route("/state", methods=["POST", "GET"])
 def state():
-    global llm_responses, user_profile
+    global llm_responses, user_profile, is_setup
+
+    if not is_setup:
+        return jsonify({})
 
     if len(llm_responses) == 0:
         with open("tp.json", "r") as fp:
@@ -194,7 +204,8 @@ def state():
         print(llm_responses[-1].get_trainings_plan())
         tp = llm_responses[-1].__dict__
         
-    tp["user"] = user_profile.to_dict()
+    if not user_profile.is_default:
+        tp["user"] = user_profile.to_dict()
 
     return jsonify(tp)
 

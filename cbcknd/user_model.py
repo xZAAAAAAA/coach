@@ -18,6 +18,7 @@ class User:
         self.sports = []
         self.sleeps_scores = deque([50], maxlen=30)
         self.recovery_scores = deque([50], maxlen=30)
+        self.is_default = True
 
     def calc_fitness_level(self, workout_list):
 
