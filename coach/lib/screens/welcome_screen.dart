@@ -16,9 +16,13 @@ class WelcomeScreen extends StatefulWidget {
 class _WelcomeScreenState extends State<WelcomeScreen> {
   bool _isWhoopAuthenticated = false;
   String? _whoopToken;
+  bool _sentTokens = false;
 
   void _navigateToObjective() {
-    sendTokens(whoop: _whoopToken);
+    if (!_sentTokens) {
+      sendTokens(whoop: _whoopToken);
+      _sentTokens = true;
+    }
 
     Navigator.push(
       context,
@@ -44,6 +48,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           'read:body_measurement',
         ]);
     if (response.isValid()) {
+      print(response.accessToken);
       setState(() {
         _isWhoopAuthenticated = true;
         _whoopToken = response.accessToken;
@@ -77,8 +82,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _navigateToObjective,
-        label: const Text('Continue'),
-        extendedPadding: const EdgeInsets.symmetric(horizontal: 128),
+        label: const Text('Go to Objective'),
+        extendedPadding: const EdgeInsets.symmetric(horizontal: 64),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );

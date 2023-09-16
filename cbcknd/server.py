@@ -1,7 +1,8 @@
 import flask
 import json
-from flask import request
+from flask import request, jsonify
 from llm import get_initial_training_plan, get_updated_training_plan
+
 
 from gcalendar import get_gc_service, get_gc_events
 
@@ -42,7 +43,7 @@ def whoop():
         print(workout)
         # trigger LLM Update
 
-    return "Hello, World3!"
+    return "Hello, World4!"
 
 
 @app.route("/calupdates", methods=["POST", "GET"])
@@ -107,14 +108,17 @@ def receive_setup():
         measurements = wc.get_body_measurement()
         user_profile.age = 30
         user_profile.weight = measurements["weight_kilogram"]
-        user_profile.height = measurements["height_meters"]
+        user_profile.height = measurements["height_meter"]
 
         user_profile.calc_fitness_level(wc.get_workouts())
+        user_profile.update_sleeps_scores(wc.get_sleeps())
+        user_profile.update_recovery_scores(wc.get_recoveries())
 
     print("Generating initial training plan...")
     response = ResponseModel(get_initial_training_plan(user_profile))
     print(response)
     llm_responses.append(response)
+
     return "Hello, Setup!"
 
 
@@ -140,7 +144,6 @@ def receive_adapt():
         print(response)
         llm_responses.append(response)
     return "Hello, Adapt!"
-
 
 
 @app.route("/setup-test", methods=["GET", "POST"])
@@ -174,6 +177,18 @@ def receive_adapt_test():
         print(response)
         llm_responses.append(response)
     return "Hello, Adapt Test!"
+
+
+
+@app.route("/state", methods=["POST", "GET"])
+def state():
+
+    with open("tp.json", "r") as fp:
+        tp = json.load(fp)
+
+    tp["user"] = user_profile.to_dict()
+
+    return jsonify(tp)
 
 
 def load_tokens():
@@ -212,6 +227,7 @@ def get_updated_events():
             event_dict[event["id"]] = event
 
     return updated_events
+
 
 
 if __name__ == "__main__":

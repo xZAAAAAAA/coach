@@ -1,6 +1,6 @@
 
 # This file contains the user model class
-from collections import defaultdict
+from collections import defaultdict, deque
 import datetime
 
 import numpy as np
@@ -16,6 +16,8 @@ class User:
         self.training_objective = "maintain fitness"
         self.fitness_level = "average"
         self.sports = []
+        self.sleeps_scores = deque([50], maxlen=30)
+        self.recovery_scores = deque([50], maxlen=30)
 
     def calc_fitness_level(self, workout_list):
 
@@ -46,4 +48,46 @@ class User:
         else:   
             self.fitness_level = "professional"
 
+    def update_sleeps_scores(self, sleeps):
+        for sleep in reversed(sleeps):
+            self.sleeps_scores.append(sleep["score"]["sleep_consistency_percentage"])
+
+    def update_recovery_scores(self, recoveries):
+        for recovery in reversed(recoveries):
+            self.recovery_scores.append(recovery["score"]["recovery_score"])
+
+    @property
+    def last_sleep_score(self):
+        return self.sleeps_scores[-1]
+    
+    @property
+    def avg_sleep_score(self):
+        return np.mean(self.sleeps_scores)
+    
+    @property
+    def last_recovery_score(self):
+        return self.recovery_scores[-1]
+    
+    @property
+    def avg_recovery_score(self):
+        return np.mean(self.recovery_scores)
+
+    def to_dict(self):
+        # Create a dictionary of the object's attributes
+        data = {
+            "name": self.name,
+            "age": self.age,
+            "weight": self.weight,
+            "height": self.height,
+            "training_objective": self.training_objective,
+            "fitness_level": self.fitness_level,
+            "sports": self.sports,
+            "last_sleep_score": self.last_sleep_score,
+            "avg_sleep_score": self.avg_sleep_score,
+            "last_recovery_score": self.last_recovery_score,
+            "avg_recovery_score": self.avg_recovery_score,
+        }
+
+        # Return the dictionary
+        return data
 

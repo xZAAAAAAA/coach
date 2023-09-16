@@ -75,8 +75,8 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _navigateToOverview,
-        label: const Text('Continue'),
-        extendedPadding: const EdgeInsets.symmetric(horizontal: 128),
+        label: const Text('Generate Plan'),
+        extendedPadding: const EdgeInsets.symmetric(horizontal: 64),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
