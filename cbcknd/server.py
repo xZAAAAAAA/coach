@@ -4,7 +4,7 @@ from flask import request, jsonify
 from llm import get_initial_training_plan, get_updated_training_plan
 
 
-from gcalendar import get_gc_service, get_gc_events, get_events_at_days, add_event
+from gcalendar import get_gc_service, get_gc_events, get_events_at_days, add_event, clear_coach_events
 
 from whoopy import WhoopClient
 from user_model import User
@@ -328,6 +328,7 @@ def create_app():
     def update_calendar(response):
         global gc_service
         # Remove all workouts
+        clear_coach_events(gc_service)
 
         # Add workouts
         for workout in response.workouts:
