@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:coach/api/service.dart';
+import 'package:coach/components/chip.dart';
 import 'package:coach/components/workout.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/subjects.dart';
@@ -43,29 +44,60 @@ class _OverviewScreenState extends State<OverviewScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6),
       child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
                 child: Text(
-                  'SUMMARY',
-                  style: Theme.of(context)
-                      .textTheme
-                      .labelLarge!
-                      .copyWith(fontWeight: FontWeight.bold),
+                  'YOUR PLAN',
+                  style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color:
+                            Theme.of(context).buttonTheme.colorScheme!.primary,
+                      ),
                 ),
               ),
-              Text(
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
                 state.summary,
                 maxLines: 10,
                 overflow: TextOverflow.ellipsis,
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 24,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  const SizedBox(width: 16),
+                  ThemedChip(label: state.user.trainingObjective),
+                  const SizedBox(width: 8),
+                  ThemedChip(
+                    label: 'Recovery: ${state.user.lastRecoveryScore.toInt()}%',
+                  ),
+                  const SizedBox(width: 8),
+                  ThemedChip(
+                    label: 'Sleep: ${state.user.lastSleepScore.toInt()}%',
+                  ),
+                  const SizedBox(width: 8),
+                  ThemedChip(label: '${state.user.age} years old'),
+                  const SizedBox(width: 8),
+                  ThemedChip(label: '${state.user.heightCm}cm'),
+                  const SizedBox(width: 8),
+                  ThemedChip(label: '${state.user.weightKg}kg'),
+                  const SizedBox(width: 16),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
         ),
       ),
     );
@@ -84,11 +116,12 @@ class _OverviewScreenState extends State<OverviewScreen> {
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Text(
-                  'NEXT UP',
-                  style: Theme.of(context)
-                      .textTheme
-                      .labelLarge!
-                      .copyWith(fontWeight: FontWeight.bold),
+                  'WHAT\'S NEXT',
+                  style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color:
+                            Theme.of(context).buttonTheme.colorScheme!.primary,
+                      ),
                 ),
               ),
               Text(
@@ -98,13 +131,17 @@ class _OverviewScreenState extends State<OverviewScreen> {
               ),
               const SizedBox(height: 8),
               ...state.workouts
-                  .map((w) => Workout(
-                        title: w.title,
-                        description: w.summary,
-                        sportsType: w.sportsType,
-                        date: w.date,
-                        duration: w.duration,
-                        intensity: w.intensity,
+                  .map((w) => Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4.0),
+                        child: Workout(
+                          title: w.title,
+                          description: w.summary,
+                          sportsType: w.sportsType,
+                          date: w.date,
+                          duration: w.duration,
+                          intensity: w.intensity,
+                          startTime: w.startTime,
+                        ),
                       ))
                   .toList()
             ],
@@ -129,14 +166,16 @@ class _OverviewScreenState extends State<OverviewScreen> {
                 children: <Widget>[
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8),
-                    child: Text('ADAPT',
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelLarge!
-                            .copyWith(fontWeight: FontWeight.bold)),
+                    child: Text(
+                      'ADAPT',
+                      style: Theme.of(context)
+                          .textTheme
+                          .labelLarge!
+                          .copyWith(fontWeight: FontWeight.bold),
+                    ),
                   ),
                   const Text(
-                      'Tell us how you would like to adapt your training plan. For example: "I have a date tonight" or "I want a harder next session."'),
+                      'Tell us how you would like to adapt your training plan. For example: "I have a date tonight" or "Make my next session tougher."'),
                   const SizedBox(height: 16),
                   TextField(
                     onSubmitted: (text) {
@@ -159,7 +198,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Overview'), actions: [
+      appBar: AppBar(title: const Text('Coach'), actions: [
         if (_showSpinner)
           const Padding(
             padding: EdgeInsets.only(right: 16),
@@ -179,7 +218,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               if (_previousState == null ||
-                  snapshot.data!.summary != _previousState!.summary) {
+                  snapshot.data!.changeReason != _previousState!.changeReason) {
                 _showSpinnerSubject.add(false);
                 _previousState = snapshot.data!;
               }
@@ -192,7 +231,19 @@ class _OverviewScreenState extends State<OverviewScreen> {
                 ],
               );
             } else {
-              return const CircularProgressIndicator();
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Hold tight, your AI coach\nis working hard...',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 92),
+                ],
+              );
             }
           },
         ),

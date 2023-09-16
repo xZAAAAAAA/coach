@@ -66,7 +66,7 @@ class WhoopClient:
     def make_paged_whoop_request(self, method, url_, params):
         response_data: list = []
 
-        while True:
+        for i in range(5):
             response = self.make_whoop_request(
                 method=method,
                 url_=url_,
@@ -96,6 +96,10 @@ class WhoopClient:
             )
         else:
             raise ValueError("Invalid method")
+        
+        if api_call_response.status_code != 200:
+            print(api_call_response)
+            # raise ValueError("Invalid response code")
 
         return api_call_response.json()
 
@@ -122,7 +126,7 @@ class WhoopClient:
 
 if __name__ == "__main__":
 
-    TOKEN = "icA8ZpxOMt8jw3irDoIdgK-9Lw6VdaYj4ChxWpHjNkM.tueIEJ5hnCe1EJ2JmI6NKPpdA48PqwMIF1yO_yrJ0Zw"
+    TOKEN = "_5kze_ywT3EiCs9-gAFu7BoGVzR9LSef7so4e42I9vw.IkDnh5wXnQ9VAvBrbgwNv08tO0xZudGetcuy4ciY_HQ"
     wpc = WhoopClient(TOKEN)
 
     wpc.get_profile()
