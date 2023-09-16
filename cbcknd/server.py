@@ -1,6 +1,6 @@
 import flask
 import json
-from flask import request
+from flask import request, jsonify
 
 from gcalendar import get_gc_service, get_gc_events
 
@@ -127,6 +127,18 @@ def receive_adapt():
     return "Hello, Adapt!"
 
 
+@app.route("/state", methods=["POST", "GET"])
+def state():
+
+    with open("tp.json", "r") as fp:
+        tp = json.load(fp)
+
+    tp["user"] = user_profile.to_dict()
+
+    return jsonify(tp)
+
+
+
 def load_tokens():
     global tokens_dict
     try:
@@ -163,6 +175,7 @@ def get_updated_events():
             event_dict[event["id"]] = event
 
     return updated_events
+
 
 
 if __name__ == "__main__":
