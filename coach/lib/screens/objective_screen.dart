@@ -1,3 +1,4 @@
+import 'package:coach/components/sports_entry.dart';
 import 'package:coach/components/themed_button.dart';
 import 'package:coach/screens/overview_screen.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,10 @@ class ObjectiveScreen extends StatefulWidget {
 }
 
 class _ObjectiveScreenState extends State<ObjectiveScreen> {
+  final _selectedSports = [];
+
+  // void _addSports() {
+
   void _navigateToOverview() {
     Navigator.push(
       context,
@@ -26,6 +31,7 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
           children: <Widget>[
             const Text('Your Objective'),
             ThemedButton(title: 'Continue', onPressed: _navigateToOverview),
+            SportsEntry()
           ],
         ),
       ),
