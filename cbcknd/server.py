@@ -84,7 +84,7 @@ def receive_tokens():
 
 @app.route("/setup", methods=["POST"])
 def receive_setup():
-    global setup_dict, user_profile, llm_responses
+    global setup_dict, user_profile, llm_responses, tokens_dict
 
     json_data = request.json
     print(json_data)
