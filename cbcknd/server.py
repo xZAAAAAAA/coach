@@ -95,7 +95,7 @@ def create_app():
         print(updated_evs)
         # trigger LLM Update
 
-        blocked_time_slots = get_events_at_days()
+        blocked_time_slots = get_events_at_days(gc_service)
 
         last_response = llm_responses[-1]
         print("Updating training plan...")
@@ -300,7 +300,7 @@ def create_app():
 
         gc_service = get_gc_service()
         gc_events = get_gc_events(gc_service)
-        blocked_time_slots = get_events_at_days()
+        blocked_time_slots = get_events_at_days(gc_service)
 
         for event in gc_events:
             event_dict[event["id"]] = event
