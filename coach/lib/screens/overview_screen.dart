@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:coach/api/service.dart';
+import 'package:coach/components/chip.dart';
 import 'package:coach/components/workout.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/subjects.dart';
@@ -43,29 +44,26 @@ class _OverviewScreenState extends State<OverviewScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6),
       child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Text(
-                  'SUMMARY',
-                  style: Theme.of(context)
-                      .textTheme
-                      .labelLarge!
-                      .copyWith(fontWeight: FontWeight.bold),
-                ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Text(
+                'SUMMARY',
+                style: Theme.of(context)
+                    .textTheme
+                    .labelLarge!
+                    .copyWith(fontWeight: FontWeight.bold),
               ),
-              Text(
-                state.summary,
-                maxLines: 10,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
+            ),
+            Text(
+              state.summary,
+              maxLines: 10,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
         ),
       ),
     );
@@ -129,11 +127,13 @@ class _OverviewScreenState extends State<OverviewScreen> {
                 children: <Widget>[
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8),
-                    child: Text('ADAPT',
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelLarge!
-                            .copyWith(fontWeight: FontWeight.bold)),
+                    child: Text(
+                      'ADAPT',
+                      style: Theme.of(context)
+                          .textTheme
+                          .labelLarge!
+                          .copyWith(fontWeight: FontWeight.bold),
+                    ),
                   ),
                   const Text(
                       'Tell us how you would like to adapt your training plan. For example: "I have a date tonight" or "I want a harder next session."'),
@@ -179,7 +179,7 @@ class _OverviewScreenState extends State<OverviewScreen> {
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               if (_previousState == null ||
-                  snapshot.data!.summary != _previousState!.summary) {
+                  snapshot.data!.changeReason != _previousState!.changeReason) {
                 _showSpinnerSubject.add(false);
                 _previousState = snapshot.data!;
               }
@@ -192,7 +192,18 @@ class _OverviewScreenState extends State<OverviewScreen> {
                 ],
               );
             } else {
-              return const CircularProgressIndicator();
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Hold tight, your AI coach is working hard!',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 32),
+                ],
+              );
             }
           },
         ),
