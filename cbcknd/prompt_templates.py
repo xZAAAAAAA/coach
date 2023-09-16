@@ -44,6 +44,8 @@ OUTPUT_FORMAT = """
     The "duration" should be the total duration of the workout in minutes.
     The "intensity" should be one of the following values ["low", "medium", "high"]
 
+    Do not mention rest days as workouts.
+
 """
 
 
@@ -71,7 +73,4 @@ UPDATE_PROMPT_START = """
 
     You will be provided with information about the training objectives, personal data, the current training plan, current body parameters and a user message.
 """
-
-
-
 
