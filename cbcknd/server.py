@@ -104,9 +104,12 @@ def receive_setup():
         measurements = wc.get_body_measurement()
         user_profile.age = 30
         user_profile.weight = measurements["weight_kilogram"]
-        user_profile.height = measurements["height_meters"]
+        user_profile.height = measurements["height_meter"]
 
         user_profile.calc_fitness_level(wc.get_workouts())
+
+        user_profile.update_sleeps_scores(wc.get_sleeps())
+        user_profile.update_recovery_scores(wc.get_recoveries())
 
     return "Hello, Setup!"
 
