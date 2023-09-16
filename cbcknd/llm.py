@@ -38,12 +38,12 @@ def prompt_model(llm, prompt, num_tokens=10000):
 
 def ask_llm(prompt):
     openai.api_key = "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"
-    output = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=[{"role": "user", "content": prompt}])
+    output = openai.ChatCompletion.create(model="gpt-4", messages=[{"role": "user", "content": prompt}])
     return output["choices"][0]["message"]["content"]
 
 
 if __name__ == "__main__":
-    response = ask_llm(prompt_templates.INITIAL_PROMPT)
+    response = ask_llm(prompt_templates.build_update_prompt())
     print(response)
    
 

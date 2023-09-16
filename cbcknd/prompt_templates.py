@@ -1,3 +1,150 @@
+
+
+input_data_initial = {
+    "personal_data": {
+        "name": "Kolja",
+        "age": 30,
+        "weight": 80,
+        "height": 180,
+        "training_objective": "maintain fitness",
+        "fitness_level": "medium-high",
+        "sports": ["squash", "cycling", "running"],
+    },
+    "current_date": "Saturday, 15.09.2023"
+}
+
+
+input_data_update = {
+    "personal_data": {
+        "name": "Kolja",
+        "age": 30,
+        "weight": 80,
+        "height": 180,
+        "training_objective": "maintain fitness",
+        "fitness_level": "medium-high",
+        "sports": ["squash", "cycling", "running"],
+    },
+    "current_date": "Saturday, 15.09.2023",
+    "user_message": "",
+    "training_plan": {
+        "training_plan_title": "Cycling Speed Cycle",
+        "summary": "A 7-days fitness plan specifically crafted for Kolja to maintain general fitness and significantly improve maximum cycling speed for triathlon preparation.",
+        "explanation": "Kolja, since you are already at a medium-high fitness level and practicing squash, cycling, and running regularly. This plan is designed with 3 core aspects: flexibility, stamina and speed. Squash sessions will focus on sharpening your agility and flexibility, whereas cycling will build your leg strength and speed. Running will provide the necessary stamina and help build cardiovascular fitness.",
+    
+        "workouts": [
+        {
+            "title": "Speed Cycling",
+            "summary": "High-intensity interval training on the bike to improve your maximum speed.",
+            "sport_type": "cycling",
+            "date": "16.09.2023",
+            "duration": 60,
+            "intensity": "high"
+        },
+        {
+            "title": "Stamina Running",
+            "summary": "Medium intensity run to build general endurance and stamina.",
+            "sport_type": "running",
+            "date": "18.09.2023",
+            "duration": 45,
+            "intensity": "medium"
+        },
+        {
+            "title": "Agility Squash",
+            "summary": "A game of squash focused on improving your agility and reflexes.",
+            "sport_type": "squash",
+            "date": "20.09.2023",
+            "duration": 30,
+            "intensity": "medium"
+        },
+        {
+            "title": "Speed Cycling",
+            "summary": "Another session of high-speed cycling to further improve your maximum speed and leg strength.",
+            "sport_type": "cycling",
+            "date": "22.09.2023",
+            "duration": 60,
+            "intensity": "high"
+        }
+        ]
+    }
+}
+
+
+
+def build_initial_prompt():
+    prompt = INTRODUCTION_START + str(input_data_initial) + INITIAL_TASK + OUTPUT_FORMAT
+    return prompt
+
+
+def build_update_prompt():
+    prompt = UPDATE_PROMPT_START + str(input_data_update) + UPDATE_TASK + OUTPUT_FORMAT
+    return prompt
+
+
+INTRODUCTION_START = """
+    You are a personal coach supporting and motivating people to achieve their fitness goals. You create and manage tailored and personal training plans that need to be continously adapted 
+    to changing circumstances and requirements. A change in the training might be necessary if the user's availability changes, the user want to adapt the training or body parameters require 
+    an adaption of the training to achieve optimal results.
+
+    ###
+
+    You will be provided with information about the training objectives, personal data, and current body parameters.
+
+"""
+
+
+INITIAL_TASK = """
+    As a personal coach you should create a personal, tailored long term training plan based on your user's situation and the training objective.
+
+"""
+
+
+OUTPUT_FORMAT = """
+    You should respond with a JSON Dictionary in the following format:
+    {“training_plan_title”: [<TRAINING PLAN TITLE>], "summary": [<TRAINING PLAN SUMMARY>], “explanation”: [<TRAINING PLAN EXPLANATION>], "workouts" [<LIST OF SINGLE WORKOUTS>]}
+    
+    The <TRAINING PLAN TITLE> should be a short title of the training. It should contain information of the planned workouts. 
+    The <TRAINING PLAN SUMMARY> should summarize the goals and the main activities of the training plan.
+    The <TRAINING PLAN EXPLANATION> should motivate why the recommended training plan meets the user's needs and contributes to achieving the training objective.
+    The <LIST OF SINGLE WORKOUTS> should contain information about the workouts upcoming in the next 7 days. Each of the workouts should be in the JSON format with the following keys:
+    "title", "summary", "sport_type", "date", "duration", "intensity".
+    The "title" should be very short and contain the most important information about the workout.
+    The "summary" should summarize the workout in the context of the training plan.
+    The "sport_type" should be one of the given sports by the user.
+    The "date" defines when the workout is scheduled. It should be in the format "DD.MM.YYYY".
+    The "duration" should be the total duration of the workout in minutes.
+    The "intensity" should be one of the following values ["low", "medium", "high"]
+
+"""
+
+
+UPDATE_TASK = """
+    As a personal coach your task is to help the user achieving their training objectives, while taking the current state of the user into account and motivating them. 
+    You should adapt the existing training plan only if it is necessary based on the provided information - it's also fine to keep the current plan.
+
+    Your whole answer should be in the JSON format only containing the keys specified.
+
+    If you come to the conclusion that the training plan needs to be adapted, respond in a JSON format.
+    "change_training_plan": A boolean variable reflecting your decision.
+    "reason": A short explanation why the training plan should be changed.
+
+    Additional your response should contain:
+
+"""
+
+
+UPDATE_PROMPT_START = """
+    You are a personal coach supporting and motivating people to achieve their fitness goals. You create and manage tailored and personal training plans that need to be continously adapted 
+    to changing circumstances and requirements. A change in the training might be necessary if the user's availability changes, the user want to adapt the training or body parameters require 
+    an adaption of the training to achieve optimal results.
+
+    ###
+
+    You will be provided with information about the training objectives, personal data, the current training plan, current body parameters and a user message.
+"""
+
+
+
+
 INITIAL_PROMPT = """
 You are a personal coach supporting people to achieve their fitness goals. You create and manage tailored and personal training plans that need to be continously adapted 
 to changing circumstances and requirements. A change in the training might be necessary if the user's availability changes, the user want to adapt the training or body parameters require 
@@ -37,7 +184,7 @@ The 30-second recovery interval allows the myoglobin in the muscle cell to recha
 Perception-wise, athletes report leaving a 30/30 interval workout feeling invigorated and not overly wiped out. This is often in stark contrast to sensations after finishing a more traditional VO2 max interval workout with long-duration repeats. For that reason, I use these sessions quite frequently and see fantastic results.
 " 
         "summary": "High intenstity intervals",
-  "workout_details": [
+  "details": [
     {
       "warm-up": [
         {
@@ -236,7 +383,7 @@ You will be provided with information about the training objectives, the current
 
 {"user": "Patrick", "age": 30, "current_day": "Saturday", "longterm_training_objective": "maintain fitness and improve max speed for cycling", "additional_context": "user has a gravel bike and lives in Zurich"
 "planned_workouts": [{"day": "Monday", "sport": "cycling", "planned_kilometers": 100, "intensity": "high"}, {"day": "Wednesday", "planned_kilometers": 120, "intensity": "high"}, {"day": "Friday", "planned_kilometers": 100, "intensity": "high"}],
-"body_parameters": {"body_battery": "low"}, "previous_workouts": "user has had bad and short sleep"}
+"body_parameters": {"body_battery": "extremely low"}, "previous_workouts": "user has had bad and short sleep"}
 
 
 You should respond with a JSON Dictionary in the following format:
