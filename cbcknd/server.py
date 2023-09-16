@@ -188,7 +188,7 @@ def state():
         with open("tp.json", "r") as fp:
             tp = json.load(fp)
     else:
-        tp = llm_responses[-1].get_trainings_plan()
+        tp = llm_responses[-1].__dict__
     tp["user"] = user_profile.to_dict()
 
     return jsonify(tp)
