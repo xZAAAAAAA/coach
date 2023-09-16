@@ -10,11 +10,13 @@ class Workout extends StatefulWidget {
     required this.date,
     required this.duration,
     required this.intensity,
+    required this.startTime,
   });
 
   final String title;
   final String description;
   final String sportsType;
+  final String startTime;
 
   final String date;
   final int duration;
@@ -27,11 +29,11 @@ class Workout extends StatefulWidget {
 class _WorkoutState extends State<Workout> {
   Color? textToColor(String text) {
     if (text == 'high') {
-      return Colors.redAccent.shade200;
+      return Colors.redAccent;
     } else if (text == 'medium') {
-      return Colors.orangeAccent.shade200;
+      return Colors.orangeAccent;
     } else if (text == 'low') {
-      return Colors.blueGrey.shade200;
+      return Colors.greenAccent;
     } else {
       return null;
     }
@@ -57,20 +59,12 @@ class _WorkoutState extends State<Workout> {
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.titleSmall!),
                   ),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: Colors.greenAccent.withAlpha(60),
-                      borderRadius: BorderRadius.circular(2),
+                  Row(children: [
+                    ThemedChip(
+                      label: widget.sportsType.toUpperCase(),
+                      color: Colors.cyanAccent,
                     ),
-                    child: Text(
-                      widget.sportsType.toUpperCase(),
-                      style: Theme.of(context).textTheme.labelSmall!.copyWith(
-                          color: Colors.greenAccent.shade200,
-                          fontWeight: FontWeight.w600),
-                    ),
-                  )
+                  ]),
                 ],
               ),
               const SizedBox(height: 8),
@@ -82,13 +76,19 @@ class _WorkoutState extends State<Workout> {
               ),
               const SizedBox(height: 8),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  ThemedChip(label: widget.date),
-                  const SizedBox(width: 4),
-                  ThemedChip(label: '${widget.duration} min'),
-                  const SizedBox(width: 4),
+                  Row(
+                    children: [
+                      ThemedChip(label: widget.date),
+                      const SizedBox(width: 8),
+                      ThemedChip(label: widget.startTime),
+                      const SizedBox(width: 8),
+                      ThemedChip(label: '${widget.duration} min'),
+                    ],
+                  ),
                   ThemedChip(
-                    label: widget.intensity,
+                    label: widget.intensity.toUpperCase(),
                     color: textToColor(widget.intensity),
                   ),
                 ],

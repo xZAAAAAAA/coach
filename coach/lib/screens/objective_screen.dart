@@ -1,3 +1,4 @@
+import 'package:coach/api/service.dart';
 import 'package:coach/components/sports_entry.dart';
 import 'package:coach/components/target_dropdown.dart';
 import 'package:coach/components/themed_button.dart';
@@ -15,8 +16,12 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
   final _selectedSports = List<String?>.of([null]);
   String? _objective;
 
-  void _navigateToOverview() {
-    // Backend call to propagate initial preferences.
+  void _onNextTap() {
+    if (_selectedSports.isEmpty || _objective == null) {
+      return;
+    }
+
+    sendSetup(_selectedSports, _objective);
 
     // Navigator.pushReplacement(
     Navigator.push(
@@ -56,7 +61,7 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
                     hint: sport == null ? 'Select sport' : null,
                     value: sport,
                     onChange: (value) {
-                      _selectedSports[index] = sport;
+                      _selectedSports[index] = value;
                     }),
               ),
             ThemedButton(title: 'Add sport', onPressed: _addSportEntry),
@@ -74,7 +79,7 @@ class _ObjectiveScreenState extends State<ObjectiveScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: _navigateToOverview,
+        onPressed: _onNextTap,
         label: const Text('Generate Plan'),
         extendedPadding: const EdgeInsets.symmetric(horizontal: 64),
       ),
