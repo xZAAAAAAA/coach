@@ -88,7 +88,7 @@ def receive_setup():
     global setup_dict, user_profile, llm_responses, tokens_dict, is_setup
 
     user_profile.is_default = True
-    is_setup = False
+    # is_setup = False
 
     json_data = request.json
     print(json_data)
