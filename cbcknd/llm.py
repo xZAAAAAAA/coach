@@ -1,6 +1,7 @@
 import openai
 import prompt_templates
 from datetime import date
+from response_model import ResponseModel
 
 
 def get_initial_training_plan(user_profile, blocked_time_slots=[]):
@@ -9,7 +10,8 @@ def get_initial_training_plan(user_profile, blocked_time_slots=[]):
         "time": {"current_date": date.today(), "blocked_time_slots": blocked_time_slots},
     }
     prompt = prompt_templates.build_initial_prompt(input_data)
-    return ask_llm(prompt)
+    reponse = ResponseModel(ask_llm(prompt))
+    return reponse
 
 
 def get_updated_training_plan(user_profile, user_message, last_response, whoop_update={}, blocked_time_slots=[]):
@@ -21,7 +23,8 @@ def get_updated_training_plan(user_profile, user_message, last_response, whoop_u
         "whoop_update": whoop_update
     }
     prompt = prompt_templates.build_update_prompt(input_data)
-    return ask_llm(prompt)
+    reponse = ResponseModel(ask_llm(prompt))
+    return reponse
 
 
 def ask_llm(prompt):

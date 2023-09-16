@@ -4,11 +4,10 @@ from flask import request, jsonify
 from llm import get_initial_training_plan, get_updated_training_plan
 
 
-from gcalendar import get_gc_service, get_gc_events, get_events_at_days
+from gcalendar import get_gc_service, get_gc_events, get_events_at_days, add_event, clear_coach_events
 
 from whoopy import WhoopClient
 from user_model import User
-from response_model import ResponseModel
 
 
 def create_app():
@@ -65,19 +64,19 @@ def create_app():
                 "workout": workout
             }
 
-            last_response = llm_responses[-1]
-            print("Updating training plan...")
-            response = ResponseModel(
-                get_updated_training_plan(
-                    user_profile=user_profile,
-                    user_message="",
-                    last_response=last_response,
-                    whoop_update=whoop_update,
-                    blocked_time_slots=blocked_time_slots
+            if len(llm_responses) > 0:
+                last_response = llm_responses[-1]
+                print("Updating training plan...")
+                response = get_updated_training_plan(
+                        user_profile=user_profile,
+                        user_message="",
+                        last_response=last_response,
+                        whoop_update=whoop_update,
+                        blocked_time_slots=blocked_time_slots
                 )
-            )
-            print(response.__dict__)
-            llm_responses.append(response)
+                update_calendar(response)
+                print(response.__dict__)
+                llm_responses.append(response)
 
         return "Hello, World4!"
 
@@ -96,20 +95,19 @@ def create_app():
         # trigger LLM Update
 
         blocked_time_slots = get_events_at_days(gc_service)
-
-        last_response = llm_responses[-1]
-        print("Updating training plan...")
-        response = ResponseModel(
-            get_updated_training_plan(
-                user_profile=user_profile,
-                user_message="",
-                last_response=last_response,
-                whoop_update={},
-                blocked_time_slots=blocked_time_slots
+        if len(llm_responses) > 0:
+            last_response = llm_responses[-1]
+            print("Updating training plan...")
+            response = get_updated_training_plan(
+                    user_profile=user_profile,
+                    user_message="",
+                    last_response=last_response,
+                    whoop_update={},
+                    blocked_time_slots=blocked_time_slots
             )
-        )
-        print(response.__dict__)
-        llm_responses.append(response)
+            print(response.__dict__)
+            update_calendar(response)
+            llm_responses.append(response)
 
         return "Hello, World2!"
     
@@ -176,7 +174,8 @@ def create_app():
             print("No Whoop Token available. Using default user profile.")
 
         print("Generating initial training plan...")
-        response = ResponseModel(get_initial_training_plan(user_profile, blocked_time_slots))
+        response = get_initial_training_plan(user_profile, blocked_time_slots)
+        update_calendar(response)
         print(response.__dict__)
         llm_responses.append(response)
 
@@ -198,21 +197,22 @@ def create_app():
         if len(llm_responses) == 0:
             print("SHIT HAPPENED! NO EXISTING TRAINING PLAN AVAILABLE")
             print("Generating initial training plan...")
-            llm_responses.append(get_initial_training_plan(user_profile, blocked_time_slots))
+            response = get_initial_training_plan(user_profile, blocked_time_slots)
+            update_calendar(response)
+            llm_responses.append(response)
         else:
             last_user_message = user_messages[-1] if len(user_messages) > 0 else ""
             last_response = llm_responses[-1]
             print("Updating training plan...")
-            response = ResponseModel(
-                get_updated_training_plan(
+            response = get_updated_training_plan(
                     user_profile=user_profile,
                     user_message=last_user_message,
                     last_response=last_response,
                     whoop_update={},
                     blocked_time_slots=blocked_time_slots
-                )
             )
             print(response.__dict__)
+            update_calendar(response)
             llm_responses.append(response)
         return "Hello, Adapt!"
     
@@ -226,8 +226,9 @@ def create_app():
             "19.09.2023": ["0:00 - 12:00", "14:30 - 23:00"],
             "20.09.2023": ["0:00 - 11:00", "13:00 - 23:00"]
             }
-        response = ResponseModel(get_initial_training_plan(user_profile, blocked_time_slots))
+        response = get_initial_training_plan(user_profile, get_initial_training_plan(user_profile))
         print(response.__dict__)
+        update_calendar(response)
         llm_responses.append(response)
         return "Hello, Setup Test!"
     
@@ -241,22 +242,23 @@ def create_app():
         if len(llm_responses) == 0:
             print("SHIT HAPPENED! NO EXISTING TRAINING PLAN AVAILABLE")
             print("Generating initial training plan...")
-            llm_responses.append(get_initial_training_plan(user_profile))
+            response = get_initial_training_plan(user_profile, blocked_time_slots)
+            update_calendar(response)
+            llm_responses.append(response)
         else:
             last_user_message = user_messages[-1] if len(user_messages) > 0 else ""
             last_response = llm_responses[-1]
             print(last_response)
             print(last_response.get_trainings_plan())
             print("Updating training plan...")
-            response = ResponseModel(
-                get_updated_training_plan(
+            response = get_updated_training_plan(
                     user_profile=user_profile,
                     user_message=last_user_message,
                     last_response=last_response,
                     whoop_update={},
                     blocked_time_slots=blocked_time_slots
-                )
             )
+            update_calendar(response)
             print(response.__dict__)
             llm_responses.append(response)
         return "Hello, Adapt Test!"
@@ -323,10 +325,31 @@ def create_app():
 
         return updated_events
 
+
+    def update_calendar(response):
+        global gc_service
+        # Remove all workouts
+        clear_coach_events(gc_service)
+
+        # Add workouts
+        for workout in response.workouts:
+            add_event(
+                service=gc_service,
+                day_str=workout["date"],
+                time_str=workout["start_time"],
+                dur_str=str(workout["duration"]),
+                title=workout["title"],
+                decr=workout["summary"]
+            )
+
+
     load_tokens()
     init_events()
 
     return app
+
+
+    
 
 
 if __name__ == "__main__":
