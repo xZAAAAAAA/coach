@@ -39,7 +39,7 @@ def whoop():
         print(workout)
         # trigger LLM Update
 
-    return "Hello, World3!"
+    return "Hello, World4!"
 
 
 @app.route("/calupdates", methods=["POST", "GET"])
