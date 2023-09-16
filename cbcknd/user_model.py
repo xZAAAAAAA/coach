@@ -51,7 +51,7 @@ class User:
 
     def update_sleeps_scores(self, sleeps):
         for sleep in reversed(sleeps):
-            self.sleeps_scores.append(sleep["score"]["sleep_consistency_percentage"])
+            self.sleeps_scores.append(sleep["score"]["sleep_performance_percentage"])
 
     def update_recovery_scores(self, recoveries):
         for recovery in reversed(recoveries):
