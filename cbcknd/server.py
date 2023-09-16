@@ -64,18 +64,19 @@ def create_app():
                 "workout": workout
             }
 
-            last_response = llm_responses[-1]
-            print("Updating training plan...")
-            response = get_updated_training_plan(
-                    user_profile=user_profile,
-                    user_message="",
-                    last_response=last_response,
-                    whoop_update=whoop_update,
-                    blocked_time_slots=blocked_time_slots
-            )
-            update_calendar(response)
-            print(response.__dict__)
-            llm_responses.append(response)
+            if len(llm_responses) > 0:
+                last_response = llm_responses[-1]
+                print("Updating training plan...")
+                response = get_updated_training_plan(
+                        user_profile=user_profile,
+                        user_message="",
+                        last_response=last_response,
+                        whoop_update=whoop_update,
+                        blocked_time_slots=blocked_time_slots
+                )
+                update_calendar(response)
+                print(response.__dict__)
+                llm_responses.append(response)
 
         return "Hello, World4!"
 
@@ -94,19 +95,19 @@ def create_app():
         # trigger LLM Update
 
         blocked_time_slots = get_events_at_days(gc_service)
-
-        last_response = llm_responses[-1]
-        print("Updating training plan...")
-        response = get_updated_training_plan(
-                user_profile=user_profile,
-                user_message="",
-                last_response=last_response,
-                whoop_update={},
-                blocked_time_slots=blocked_time_slots
-        )
-        print(response.__dict__)
-        update_calendar(response)
-        llm_responses.append(response)
+        if len(llm_responses) > 0:
+            last_response = llm_responses[-1]
+            print("Updating training plan...")
+            response = get_updated_training_plan(
+                    user_profile=user_profile,
+                    user_message="",
+                    last_response=last_response,
+                    whoop_update={},
+                    blocked_time_slots=blocked_time_slots
+            )
+            print(response.__dict__)
+            update_calendar(response)
+            llm_responses.append(response)
 
         return "Hello, World2!"
     
