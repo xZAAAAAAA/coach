@@ -13,7 +13,7 @@ class User:
         self.age = 0
         self.weight = 70
         self.height = 1.7
-        self.training_objective = ""
+        self.training_objective = "maintain fitness"
         self.fitness_level = "average"
         self.sports = []
 

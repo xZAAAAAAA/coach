@@ -70,12 +70,12 @@ input_data_update = {
 
 
 
-def build_initial_prompt():
-    prompt = INTRODUCTION_START + str(input_data_initial) + INITIAL_TASK + OUTPUT_FORMAT
+def build_initial_prompt(input_data):
+    prompt = INTRODUCTION_START + str(input_data) + INITIAL_TASK + OUTPUT_FORMAT
     return prompt
 
 
-def build_update_prompt():
+def build_update_prompt(input_data):
     prompt = UPDATE_PROMPT_START + str(input_data_update) + UPDATE_TASK + OUTPUT_FORMAT
     return prompt
 
@@ -100,7 +100,7 @@ INITIAL_TASK = """
 
 OUTPUT_FORMAT = """
     You should respond with a JSON Dictionary in the following format:
-    {“training_plan_title”: [<TRAINING PLAN TITLE>], "summary": [<TRAINING PLAN SUMMARY>], “explanation”: [<TRAINING PLAN EXPLANATION>], "workouts" [<LIST OF SINGLE WORKOUTS>]}
+    {"training_plan_title": [<TRAINING PLAN TITLE>], "summary": [<TRAINING PLAN SUMMARY>], "explanation": [<TRAINING PLAN EXPLANATION>], "workouts" [<LIST OF SINGLE WORKOUTS>]}
     
     The <TRAINING PLAN TITLE> should be a short title of the training. It should contain information of the planned workouts. 
     The <TRAINING PLAN SUMMARY> should summarize the goals and the main activities of the training plan.
@@ -125,7 +125,7 @@ UPDATE_TASK = """
 
     If you come to the conclusion that the training plan needs to be adapted, respond in a JSON format.
     "change_training_plan": A boolean variable reflecting your decision.
-    "reason": A short explanation why the training plan should be changed.
+    "change_reason": A short explanation why the training plan should be changed.
 
     Additional your response should contain:
 

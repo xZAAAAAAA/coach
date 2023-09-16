@@ -1,11 +1,13 @@
 import flask
 import json
 from flask import request
+from llm import get_initial_training_plan, get_updated_training_plan
 
 from gcalendar import get_gc_service, get_gc_events
 
 from whoopy import WhoopClient
 from user_model import User
+from response_model import ResponseModel
 
 app = flask.Flask(__name__)
 
@@ -15,6 +17,7 @@ tokens_dict = {}
 setup_dict = {}
 user_messages = []
 user_profile = User()
+llm_responses = []
 
 
 @app.route("/")
@@ -80,7 +83,7 @@ def receive_tokens():
 
 @app.route("/setup", methods=["POST"])
 def receive_setup():
-    global setup_dict, user_profile
+    global setup_dict, user_profile, llm_responses
 
     json_data = request.json
     print(json_data)
@@ -108,12 +111,16 @@ def receive_setup():
 
         user_profile.calc_fitness_level(wc.get_workouts())
 
+    print("Generating initial training plan...")
+    response = ResponseModel(get_initial_training_plan(user_profile))
+    print(response)
+    llm_responses.append(response)
     return "Hello, Setup!"
 
 
 @app.route("/adapt", methods=["POST"])
 def receive_adapt():
-    global user_messages
+    global user_messages, llm_responses
 
     json_data = request.json
     print(json_data)
@@ -121,7 +128,52 @@ def receive_adapt():
     if "text" in json_data:
         user_messages.append(json_data["text"])
 
+    if len(llm_responses) == 0:
+        print("SHIT HAPPENED! NO EXISTING TRAINING PLAN AVAILABLE")
+        print("Generating initial training plan...")
+        llm_responses.append(get_initial_training_plan(user_profile))
+    else:
+        last_user_message = user_messages[-1] if len(user_messages) > 0 else ""
+        last_response = llm_responses[-1]
+        print("Updating training plan...")
+        response = ResponseModel(get_updated_training_plan(user_profile=user_profile, user_message=last_user_message, last_response=last_response))
+        print(response)
+        llm_responses.append(response)
     return "Hello, Adapt!"
+
+
+
+@app.route("/setup-test", methods=["GET", "POST"])
+def receive_setup_test():
+    global setup_dict, user_profile, llm_responses
+    print("Generating initial training plan...")
+    response = ResponseModel(get_initial_training_plan(user_profile))
+    print(response)
+    llm_responses.append(response)
+    return "Hello, Setup Test!"
+
+
+
+@app.route("/adapt-test", methods=["GET", "POST"])
+def receive_adapt_test():
+    global llm_responses
+
+    user_messages = ["My knee hurts!"]
+
+    if len(llm_responses) == 0:
+        print("SHIT HAPPENED! NO EXISTING TRAINING PLAN AVAILABLE")
+        print("Generating initial training plan...")
+        llm_responses.append(get_initial_training_plan(user_profile))
+    else:
+        last_user_message = user_messages[-1] if len(user_messages) > 0 else ""
+        last_response = llm_responses[-1]
+        print(last_response)
+        print(last_response.get_trainings_plan())
+        print("Updating training plan...")
+        response = ResponseModel(get_updated_training_plan(user_profile=user_profile, user_message=last_user_message, last_response=last_response))
+        print(response)
+        llm_responses.append(response)
+    return "Hello, Adapt Test!"
 
 
 def load_tokens():
