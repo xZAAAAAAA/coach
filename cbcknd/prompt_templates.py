@@ -45,7 +45,7 @@ OUTPUT_FORMAT = """
     The "start_time" should be the start time of the workout in the format "HH:MM".
     The "intensity" should be one of the following values ["low", "medium", "high"]
 
-    Do not mention rest days as workouts.
+    Don't explicitly mention rest days or resting periods in the training plan. Don't include workouts with a duration of 0.
 
 """
 

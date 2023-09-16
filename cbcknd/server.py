@@ -46,7 +46,39 @@ def create_app():
             print(workout)
             # trigger LLM Update
 
+            activity_lookup = {
+                -1: "Activity",
+                0: "Running",
+                1: "Cycling", 
+                32: "Squash"
+            }
+            activity = activity_lookup[workout["sport_id"]]
+            workout["sport_name"] = activity
+
+            del workout["score_state"]
+            del workout["sport_id"]
+
+            whoop_update = {
+                "update": "whoop training finished",
+                "workout": workout
+            }
+
+            last_response = llm_responses[-1]
+            print("Updating training plan...")
+            response = ResponseModel(
+                get_updated_training_plan(
+                    user_profile=user_profile,
+                    user_message="",
+                    last_response=last_response,
+                    whoop_update=whoop_update,
+                    blocked_time_slots=[]
+                )
+            )
+            print(response.__dict__)
+            llm_responses.append(response)
+
         return "Hello, World4!"
+
 
     @app.route("/calupdates", methods=["POST", "GET"])
     def calupdates():
@@ -60,7 +92,24 @@ def create_app():
         print(updated_evs)
         # trigger LLM Update
 
+        blocked_time_slots = []
+
+        last_response = llm_responses[-1]
+        print("Updating training plan...")
+        response = ResponseModel(
+            get_updated_training_plan(
+                user_profile=user_profile,
+                user_message="",
+                last_response=last_response,
+                whoop_update={},
+                blocked_time_slots=blocked_time_slots
+            )
+        )
+        print(response.__dict__)
+        llm_responses.append(response)
+
         return "Hello, World2!"
+    
 
     @app.route("/tokens", methods=["POST"])
     def receive_tokens():
@@ -81,6 +130,7 @@ def create_app():
             json.dump(tokens_dict, fp)
 
         return "Hello, Tokens!"
+
 
     @app.route("/setup", methods=["POST"])
     def receive_setup():
@@ -130,6 +180,7 @@ def create_app():
         is_setup = True
 
         return "Hello, Setup!"
+    
 
     @app.route("/adapt", methods=["POST"])
     def receive_adapt():
@@ -159,15 +210,22 @@ def create_app():
             print(response.__dict__)
             llm_responses.append(response)
         return "Hello, Adapt!"
+    
 
     @app.route("/setup-test", methods=["GET", "POST"])
     def receive_setup_test():
         global setup_dict, user_profile, llm_responses
         print("Generating initial training plan...")
-        response = ResponseModel(get_initial_training_plan(user_profile))
+        blocked_time_slots = {
+            "18.09.2023": ["0:00 - 13:00", "16:00 - 23:00"],
+            "19.09.2023": ["0:00 - 12:00", "14:30 - 23:00"],
+            "20.09.2023": ["0:00 - 11:00", "13:00 - 23:00"]
+            }
+        response = ResponseModel(get_initial_training_plan(user_profile, blocked_time_slots))
         print(response.__dict__)
         llm_responses.append(response)
         return "Hello, Setup Test!"
+    
 
     @app.route("/adapt-test", methods=["GET", "POST"])
     def receive_adapt_test():
@@ -196,6 +254,7 @@ def create_app():
             llm_responses.append(response)
         return "Hello, Adapt Test!"
 
+
     @app.route("/state", methods=["POST", "GET"])
     def state():
         global llm_responses, user_profile, is_setup
@@ -218,6 +277,7 @@ def create_app():
 
         return jsonify(tp)
 
+
     def load_tokens():
         global tokens_dict
         try:
@@ -227,6 +287,7 @@ def create_app():
             print("no tokens file found")
             tokens_dict = {}
 
+
     def init_events():
         global gc_service, event_dict
 
@@ -235,6 +296,7 @@ def create_app():
 
         for event in gc_events:
             event_dict[event["id"]] = event
+
 
     def get_updated_events():
         global gc_service, event_dict
