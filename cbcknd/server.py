@@ -83,6 +83,8 @@ def create_app():
 
     @app.route("/calupdates", methods=["POST", "GET"])
     def calupdates():
+
+        return "BREAK!!!!"
         global llm_responses, blocked_time_slots
         json_data = request.data.decode("utf-8")
 
