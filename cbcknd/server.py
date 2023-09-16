@@ -51,6 +51,29 @@ def whoop():
         print(workout)
         # trigger LLM Update
 
+        activity_lookup = {
+            -1: "Activity",
+            0: "Running",
+            1: "Cycling",
+            32: "Squash"
+        }
+
+        activity = workout["sport_id"]
+        workout["sport_name"] = activity
+        del  workout["sport_id"]
+        del  workout["score_state"]
+
+        whoop_update = {
+            "update": "whoop workout completed",
+            workout: workout,
+        }
+
+        print("Updating training plan...")
+        last_response = llm_responses[-1]
+        response = ResponseModel(get_updated_training_plan(user_profile=user_profile, user_message="", last_response=last_response, whoop_update=whoop_update))
+        print(response.__dict__)
+        llm_responses.append(response)
+
     return "Hello, World4!"
 
 
@@ -65,6 +88,14 @@ def calupdates():
     updated_evs = get_updated_events()
     print(updated_evs)
     # trigger LLM Update
+
+    blocked_time_slots = []
+
+    print("Updating training plan...")
+    last_response = llm_responses[-1]
+    response = ResponseModel(get_updated_training_plan(user_profile=user_profile, user_message="", last_response=last_response, whoop_update={}, blocked_time_slots=blocked_time_slots))
+    print(response.__dict__)
+    llm_responses.append(response)
 
     return "Hello, World2!"
 
