@@ -1,7 +1,7 @@
 import time
 import flask
 import json
-from flask import request, jsonify
+from flask import request, jsonify, session
 from llm import get_initial_training_plan, get_updated_training_plan
 
 
@@ -85,6 +85,8 @@ def create_app():
 
     @app.route("/calupdates", methods=["POST", "GET"])
     def calupdates():
+
+        print(session.get("cal_enter"), "xD")
 
         global llm_responses, blocked_time_slots, last_calendar_update
 
@@ -341,6 +343,8 @@ def create_app():
     def update_calendar(response):
         global gc_service, last_calendar_update
 
+        session["cal_enter"] = "xD"
+
         if time.time() - last_calendar_update < 60:
             return
 
@@ -359,6 +363,8 @@ def create_app():
             )
 
         last_calendar_update = time.time()
+
+        session["cal_exit"] = "free"
 
 
     load_tokens()
