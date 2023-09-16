@@ -76,7 +76,7 @@ def build_initial_prompt(input_data):
 
 
 def build_update_prompt(input_data):
-    prompt = UPDATE_PROMPT_START + str(input_data_update) + UPDATE_TASK + OUTPUT_FORMAT
+    prompt = UPDATE_PROMPT_START + str(input_data) + UPDATE_TASK + OUTPUT_FORMAT
     return prompt
 
 
