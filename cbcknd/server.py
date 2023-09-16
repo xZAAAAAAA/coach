@@ -3,6 +3,7 @@ import json
 from flask import request, jsonify
 
 from gcalendar import get_gc_service, get_gc_events
+from whoopy import WhoopClient
 
 app = flask.Flask(__name__)
 
@@ -12,10 +13,29 @@ tokens_dict = {}
 setup_dict = {}
 user_messages = []
 
-
 @app.route('/')
 def hello_world():
         return 'Hello, World!'
+
+
+@app.route('/whoop', methods=['POST', "GET"])
+def whoop():
+    json_data = request.data.decode('utf-8')
+
+    print(request.headers)
+
+    print(json_data)
+
+    ev_id = json_data.get("id", "")
+    ev_tye = json_data.get("type", "")
+
+    if ev_tye == "workout.update":
+        wc = WhoopClient(tokens_dict["whoop"])
+        workout = wc.get_workout_by_id(ev_id)
+        print(workout)
+        #trigger LLM Update
+
+    return 'Hello, World3!'
 
 @app.route('/calupdates', methods=['POST', "GET"])
 def calupdates():
@@ -26,8 +46,8 @@ def calupdates():
     print(json_data)
 
     updated_evs = get_updated_events()
-
     print(updated_evs)
+    #trigger LLM Update
 
     return 'Hello, World2!'
 
