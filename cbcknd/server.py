@@ -5,7 +5,7 @@ from flask import request, jsonify, session
 from llm import get_initial_training_plan, get_updated_training_plan
 
 
-from gcalendar import get_gc_service, get_gc_events, get_events_at_days, add_event, clear_coach_events
+from gcalendar import compare_events, get_gc_service, get_gc_events, get_events_at_days, add_event, clear_coach_events
 
 from whoopy import WhoopClient, activity_lookup
 from user_model import User
@@ -17,7 +17,7 @@ def create_app():
     app.secret_key = 'BAD_SECRET_KEY'
 
 
-    global event_dict, gc_service, tokens_dict, setup_dict, user_messages, user_profile, llm_responses, is_setup, blocked_time_slots, last_calendar_update
+    global event_dict, gc_service, tokens_dict, setup_dict, user_messages, user_profile, llm_responses, is_setup, blocked_time_slots, last_calendar_update, state_cntr
 
     event_dict = {}
     gc_service = None
@@ -29,6 +29,7 @@ def create_app():
     is_setup = False
     blocked_time_slots = {}
     last_calendar_update = 0
+    state_cntr = 0
 
     @app.route("/")
     def hello_world():
@@ -36,7 +37,7 @@ def create_app():
 
     @app.route("/whoop", methods=["POST", "GET"])
     def whoop():
-        global llm_responses, blocked_time_slots, tokens_dict
+        global llm_responses, blocked_time_slots, tokens_dict, user_profile
         json_data = request.json
 
         print(json_data)
@@ -111,6 +112,33 @@ def create_app():
 
     #     return "Hello, World2!"
     
+
+    def resolve_cal_blocks():
+        global blocked_time_slots, gc_service, llm_responses, user_profile
+        blocked_time_slots = get_events_at_days(gc_service)
+
+        if len(llm_responses) > 0 and len(llm_responses['workouts']) > 0:
+
+            workouts = llm_responses['workouts']
+
+            is_collision = compare_events(blocked_time_slots, workouts)
+            print("is_collision", is_collision)
+
+            if is_collision:
+                if len(llm_responses) > 0:
+                    last_response = llm_responses[-1]
+                    print("Updating training plan...")
+                    response = get_updated_training_plan(
+                            user_profile=user_profile,
+                            user_message="",
+                            last_response=last_response,
+                            whoop_update={},
+                            blocked_time_slots=blocked_time_slots
+                    )
+                    print(response.__dict__)
+                    update_calendar(response)
+                    llm_responses.append(response)
+
 
     @app.route("/tokens", methods=["POST"])
     def receive_tokens():
@@ -266,7 +294,12 @@ def create_app():
 
     @app.route("/state", methods=["POST", "GET"])
     def state():
-        global llm_responses, user_profile, is_setup
+        global llm_responses, user_profile, is_setup, state_cntr
+
+        state_cntr += 1
+
+        if state_cntr % 10 == 0:
+            resolve_cal_blocks()
 
         if not is_setup:
             return jsonify({})

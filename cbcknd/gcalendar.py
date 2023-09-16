@@ -1,4 +1,5 @@
 from __future__ import print_function
+from collections import defaultdict
 
 import datetime
 import os.path
@@ -205,6 +206,8 @@ def get_events_at_day(service, day_str):
     str_list = []
 
     for event in events:
+        if "[COACH]" in event["summary"]:
+            continue
         start = datetime.datetime.fromisoformat(event['start']['dateTime']).strftime("%H:%M")
         end = datetime.datetime.fromisoformat(event['end']['dateTime']).strftime("%H:%M")
         str_list.append(start + " - " + end)
@@ -265,6 +268,33 @@ def clear_coach_events(service):
     for event in events:
         if "[COACH]" in event["summary"]:
             service.events().delete(calendarId='primary', eventId=event["id"]).execute()
+
+
+
+
+def compare_events(gc_events, workouts):
+
+    workout_day_dict = defaultdict(list)
+
+    for workout in workouts:
+        wday = workout['date']
+        wdatetime = datetime.datetime.strptime(workout['date'] + " " + workout['start_time'], "%d.%m.%Y %H:%M")
+        wdatetime_end = wdatetime + datetime.timedelta(minutes=int(workout['duration']))
+
+        workout_day_dict[wday].append((wdatetime, wdatetime_end))
+
+    for eday, events in gc_events.items():
+        for event in events:
+            edatetime = datetime.datetime.strptime(eday + " " + event.split(" - ")[0], "%d.%m.%Y %H:%M")
+            edatetime_end = datetime.datetime.strptime(eday + " " + event.split(" - ")[1], "%d.%m.%Y %H:%M")
+
+            for wdatetime, wdatetime_end in workout_day_dict[eday]:
+                if wdatetime <= edatetime <= wdatetime_end or wdatetime <= edatetime_end <= wdatetime_end:
+                    print("Conflict: ", wdatetime, wdatetime_end, " - ", edatetime, edatetime_end)
+                    return False
+
+    return True
+
 
 # 
 #
