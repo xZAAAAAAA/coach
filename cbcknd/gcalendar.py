@@ -2,7 +2,8 @@ from __future__ import print_function
 
 import datetime
 import os.path
-import time
+
+import pytz
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -175,5 +176,45 @@ def get_gc_events(service):
     return events
 
 
+def get_events_at_day(service, day_str):
+    if service is None:
+        return []
+    # Call the Calendar API
+    date_obj = datetime.datetime.strptime(day_str, "%d.%m.%Y")
+    utc_date_obj = date_obj.astimezone(pytz.utc)
+
+    next_day = utc_date_obj + datetime.timedelta(days=1)
+
+    time_min = utc_date_obj.isoformat() # 'Z' indicates UTC time
+    time_max = next_day.isoformat()  # 'Z' indicates UTC time
+
+    print("Getting the upcoming 20 events")
+    events_result = (
+        service.events()
+        .list(
+            calendarId="primary",
+            timeMin=time_min.replace("+00:00", "Z"),
+            timeMax=time_max.replace("+00:00", "Z"),
+            maxResults=20,
+            singleEvents=True,
+            orderBy="startTime",
+        )
+        .execute()
+    )
+    events = events_result.get("items", [])
+
+    str_list = []
+
+    for event in events:
+        start = datetime.datetime.fromisoformat(event['start']['dateTime']).strftime("%H:%M")
+        end = datetime.datetime.fromisoformat(event['end']['dateTime']).strftime("%H:%M")
+        str_list.append(start + " - " + end)
+
+    return ", ".join(str_list)
+
+
+# 
+#
 if __name__ == "__main__":
-    renew_url()
+    # get_gc_events(get_gc_service())
+    print(get_events_at_day(get_gc_service(), "18.09.2023"))
