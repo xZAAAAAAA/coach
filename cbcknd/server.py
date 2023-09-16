@@ -1,3 +1,4 @@
+import time
 import flask
 import json
 from flask import request, jsonify
@@ -24,6 +25,7 @@ def create_app():
     llm_responses = []
     is_setup = False
     blocked_time_slots = {}
+    last_calendar_update = 0
 
     @app.route("/")
     def hello_world():
@@ -83,7 +85,12 @@ def create_app():
 
     @app.route("/calupdates", methods=["POST", "GET"])
     def calupdates():
-        global llm_responses, blocked_time_slots
+
+        global llm_responses, blocked_time_slots, last_calendar_update
+        
+        if time.time() - last_calendar_update < 60:
+            return ""
+
         json_data = request.data.decode("utf-8")
 
         print(request.headers)
@@ -327,7 +334,11 @@ def create_app():
 
 
     def update_calendar(response):
-        global gc_service
+        global gc_service, last_calendar_update
+
+        if time.time() - last_calendar_update < 60:
+            return
+
         # Remove all workouts
         clear_coach_events(gc_service)
 
@@ -341,6 +352,8 @@ def create_app():
                 title=workout["title"],
                 decr=workout["summary"]
             )
+
+        last_calendar_update = time.time()
 
 
     load_tokens()
