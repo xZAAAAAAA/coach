@@ -1,5 +1,7 @@
 import os
 import requests
+import openai
+import json
 import prompt_templates
 
 from llama_cpp import Llama
@@ -33,7 +35,16 @@ def prompt_model(llm, prompt, num_tokens=10000):
     return resp["choices"][0]["text"]
 
 
+
+def ask_llm(prompt):
+    openai.api_key = "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"
+    output = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=[{"role": "user", "content": prompt}])
+    return output["choices"][0]["message"]["content"]
+
+
 if __name__ == "__main__":
-    model = load_model()
-    test_text = prompt_model(model, prompt_templates.UPDATE_PROMPT)
-    print(test_text)
+    response = ask_llm(prompt_templates.INITIAL_PROMPT)
+    print(response)
+   
+
+
