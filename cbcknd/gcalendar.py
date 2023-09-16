@@ -2,7 +2,8 @@ from __future__ import print_function
 
 import datetime
 import os.path
-import time
+
+import pytz
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -175,5 +176,92 @@ def get_gc_events(service):
     return events
 
 
+def get_events_at_day(service, day_str):
+    if service is None:
+        return []
+    # Call the Calendar API
+    date_obj = datetime.datetime.strptime(day_str, "%d.%m.%Y")
+    utc_date_obj = date_obj.astimezone(pytz.utc)
+
+    next_day = utc_date_obj + datetime.timedelta(days=1)
+
+    time_min = utc_date_obj.isoformat() # 'Z' indicates UTC time
+    time_max = next_day.isoformat()  # 'Z' indicates UTC time
+
+    events_result = (
+        service.events()
+        .list(
+            calendarId="primary",
+            timeMin=time_min.replace("+00:00", "Z"),
+            timeMax=time_max.replace("+00:00", "Z"),
+            maxResults=20,
+            singleEvents=True,
+            orderBy="startTime",
+        )
+        .execute()
+    )
+    events = events_result.get("items", [])
+
+    str_list = []
+
+    for event in events:
+        start = datetime.datetime.fromisoformat(event['start']['dateTime']).strftime("%H:%M")
+        end = datetime.datetime.fromisoformat(event['end']['dateTime']).strftime("%H:%M")
+        str_list.append(start + " - " + end)
+
+    # return ", ".join(str_list)
+    return str_list
+
+
+def get_events_at_days(service, day_str=None, n_days=7):
+    
+    if day_str is None:
+        now = datetime.datetime.now()
+        today = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        day_str = today.strftime("%d.%m.%Y")
+
+    events_day_dict = {}
+
+    for i in range(n_days):
+        date_obj = datetime.datetime.strptime(day_str, "%d.%m.%Y")
+        date_obj += datetime.timedelta(days=i)
+        new_day_str = date_obj.strftime("%d.%m.%Y")
+
+        events_day_dict[new_day_str] = get_events_at_day(service, new_day_str)
+
+    return events_day_dict
+
+
+
+
+def add_event(service, day_str, time_str, dur_str, title, decr=""):
+
+    start_obj = datetime.datetime.strptime(day_str + " " + time_str, "%d.%m.%Y %H:%M:%S")
+
+    end_obj = start_obj + datetime.timedelta(minutes=int(dur_str))
+
+    event = {
+        'summary': title,
+        'description': decr,
+        'start': {
+            'dateTime': start_obj.isoformat(),
+            'timeZone': "Europe/Berlin",
+        },
+        'end': {
+            'dateTime': end_obj.isoformat(),
+            'timeZone': 'Europe/Berlin',
+        },
+        'reminders': {
+            'useDefault': True,
+        },
+    }
+
+    event = service.events().insert(calendarId='primary', body=event).execute()
+
+# 
+#
 if __name__ == "__main__":
-    renew_url()
+    # get_gc_events(get_gc_service())
+    # print(get_events_at_day(get_gc_service(), "18.09.2023"))
+    print(get_events_at_days(get_gc_service()))
+    # add_event(get_gc_service(), "18.09.2023", "12:00:00", "30", "test")
