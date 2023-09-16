@@ -12,6 +12,7 @@ class UserState {
   final double avgRecoveryScore;
   final double lastSleepScore;
   final double lastRecoveryScore;
+  final String trainingObjective;
 
   const UserState({
     required this.age,
@@ -21,6 +22,7 @@ class UserState {
     required this.avgRecoveryScore,
     required this.lastSleepScore,
     required this.lastRecoveryScore,
+    required this.trainingObjective,
   });
 
   factory UserState.fromJson(Map<String, dynamic> json) {
@@ -32,6 +34,7 @@ class UserState {
       avgRecoveryScore: json['avg_recovery_score'],
       lastSleepScore: json['last_sleep_score'],
       lastRecoveryScore: json['last_recovery_score'],
+      trainingObjective: json['training_objective'],
     );
   }
 }
@@ -39,6 +42,7 @@ class UserState {
 class WorkoutState {
   final String title;
   final String summary;
+  final String startTime;
   final String date;
   final int duration;
   final String intensity;
@@ -47,6 +51,7 @@ class WorkoutState {
   const WorkoutState({
     required this.title,
     required this.summary,
+    required this.startTime,
     required this.date,
     required this.duration,
     required this.intensity,
@@ -57,6 +62,7 @@ class WorkoutState {
     return WorkoutState(
       title: json['title'],
       summary: json['summary'],
+      startTime: json['start_time'],
       date: json['date'],
       duration: json['duration'],
       intensity: json['intensity'],
@@ -68,7 +74,7 @@ class WorkoutState {
 class TrainingState {
   final String summary;
   final String explanation;
-  final String changeReason;
+  final String? changeReason;
   final List<WorkoutState> workouts;
   final UserState user;
 
@@ -84,7 +90,8 @@ class TrainingState {
     return TrainingState(
       summary: json['summary'],
       explanation: json['explanation'],
-      changeReason: json["change_reason"],
+      changeReason:
+          json.containsKey('change_reason') ? json["change_reason"] : null,
       workouts: (json['workouts'] as List)
           .map((e) => WorkoutState.fromJson(e))
           .toList(),
@@ -97,7 +104,9 @@ class TrainingState {
               avgSleepScore: 92,
               avgRecoveryScore: 56,
               lastSleepScore: 67,
-              lastRecoveryScore: 91),
+              lastRecoveryScore: 91,
+              trainingObjective: 'Maintain fitness',
+            ),
     );
   }
 }

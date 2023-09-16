@@ -10,11 +10,13 @@ class Workout extends StatefulWidget {
     required this.date,
     required this.duration,
     required this.intensity,
+    required this.startTime,
   });
 
   final String title;
   final String description;
   final String sportsType;
+  final String startTime;
 
   final String date;
   final int duration;
@@ -79,7 +81,9 @@ class _WorkoutState extends State<Workout> {
                   Row(
                     children: [
                       ThemedChip(label: widget.date),
-                      const SizedBox(width: 4),
+                      const SizedBox(width: 8),
+                      ThemedChip(label: widget.startTime),
+                      const SizedBox(width: 8),
                       ThemedChip(label: '${widget.duration} min'),
                     ],
                   ),
