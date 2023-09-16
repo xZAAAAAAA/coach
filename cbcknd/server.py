@@ -22,6 +22,13 @@ llm_responses = []
 is_setup = False
 
 
+@app.before_first_request
+def before_first_request():
+    print("before_first_request")
+    load_tokens()
+    init_events()
+
+
 @app.route("/")
 def hello_world():
     return "Hello, World!"
@@ -118,6 +125,10 @@ def receive_setup():
         user_profile.update_sleeps_scores(wc.get_sleeps())
         user_profile.update_recovery_scores(wc.get_recoveries())
         user_profile.is_default = False
+
+        print("Loaded User Profile:", user_profile.to_dict())
+    else:
+        print("No Whoop Token available. Using default user profile.")
 
     print("Generating initial training plan...")
     response = ResponseModel(get_initial_training_plan(user_profile))
