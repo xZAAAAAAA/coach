@@ -1,34 +1,22 @@
 import 'package:flutter/material.dart';
 
-// const List<String> entries = <String>['Cycling', 'Running', 'Swimming'];
+const List<String> entries = <String>[
+  'Increase fitness',
+  'Maintain fitness',
+  'Lose weight'
+];
 
-List<String> getEntries() {
-  final entries = [
-    'Cycling',
-    'Running',
-    'Swimming',
-    'Squash',
-    'Tennis',
-    'Badminton',
-    'Rowing',
-  ];
-  entries.sort();
-  return entries;
-}
+class TargetDropdown extends StatefulWidget {
+  const TargetDropdown({super.key, required this.onChange});
 
-class SportsEntry extends StatefulWidget {
-  const SportsEntry({super.key, required this.onChange, this.hint, this.value});
-
-  final String? hint;
-  final String? value;
   final void Function(String) onChange;
 
   @override
-  State<SportsEntry> createState() => _SportsEntryState();
+  State<TargetDropdown> createState() => _TargetDropdownState();
 }
 
-class _SportsEntryState extends State<SportsEntry> {
-  final TextEditingController controller = TextEditingController();
+class _TargetDropdownState extends State<TargetDropdown> {
+  // String? _currentValue;
 
   @override
   Widget build(BuildContext context) {
@@ -45,13 +33,15 @@ class _SportsEntryState extends State<SportsEntry> {
           borderSide: BorderSide.none,
         ),
       ),
-      initialSelection: widget.value,
       onSelected: (String? value) {
         widget.onChange(value!);
+        // setState(() {
+        //   _currentValue = value;
+        // });
       },
-      hintText: widget.hint,
+      hintText: 'Select objective',
       dropdownMenuEntries:
-          getEntries().map<DropdownMenuEntry<String>>((String value) {
+          entries.map<DropdownMenuEntry<String>>((String value) {
         return DropdownMenuEntry<String>(value: value, label: value);
       }).toList(),
     );
