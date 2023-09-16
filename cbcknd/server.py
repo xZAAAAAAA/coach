@@ -125,7 +125,7 @@ def receive_setup():
 
     print("Generating initial training plan...")
     response = ResponseModel(get_initial_training_plan(user_profile))
-    print(response)
+    print(response.__dict__)
     llm_responses.append(response)
 
     is_setup = True
@@ -152,7 +152,7 @@ def receive_adapt():
         last_response = llm_responses[-1]
         print("Updating training plan...")
         response = ResponseModel(get_updated_training_plan(user_profile=user_profile, user_message=last_user_message, last_response=last_response))
-        print(response)
+        print(response.__dict__)
         llm_responses.append(response)
     return "Hello, Adapt!"
 
@@ -162,7 +162,7 @@ def receive_setup_test():
     global setup_dict, user_profile, llm_responses
     print("Generating initial training plan...")
     response = ResponseModel(get_initial_training_plan(user_profile))
-    print(response)
+    print(response.__dict__)
     llm_responses.append(response)
     return "Hello, Setup Test!"
 
@@ -185,7 +185,7 @@ def receive_adapt_test():
         print(last_response.get_trainings_plan())
         print("Updating training plan...")
         response = ResponseModel(get_updated_training_plan(user_profile=user_profile, user_message=last_user_message, last_response=last_response))
-        print(response)
+        print(response.__dict__)
         llm_responses.append(response)
     return "Hello, Adapt Test!"
 

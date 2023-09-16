@@ -36,12 +36,13 @@ OUTPUT_FORMAT = """
     The <TRAINING PLAN SUMMARY> should summarize the goals and the main activities of the training plan.
     The <TRAINING PLAN EXPLANATION> should motivate why the recommended training plan meets the user's needs and contributes to achieving the training objective.
     The <LIST OF SINGLE WORKOUTS> should contain information about the workouts upcoming in the next 7 days. Each of the workouts should be in the JSON format with the following keys:
-    "title", "summary", "sport_type", "date", "duration", "intensity".
+    "title", "summary", "sport_type", "date", "duration", "start_time", "intensity".
     The "title" should be very short and contain the most important information about the workout.
     The "summary" should summarize the workout in the context of the training plan.
     The "sport_type" should be one of the given sports by the user.
     The "date" defines when the workout is scheduled. It should be in the format "DD.MM.YYYY".
     The "duration" should be the total duration of the workout in minutes.
+    The "start_time" should be the start time of the workout in the format "HH:MM".
     The "intensity" should be one of the following values ["low", "medium", "high"]
 
     Do not mention rest days as workouts.
@@ -58,6 +59,7 @@ UPDATE_TASK = """
     If you come to the conclusion that the training plan needs to be adapted, respond in a JSON format.
     "change_training_plan": A boolean variable reflecting your decision.
     "change_reason": A short explanation why the training plan should be changed.
+    "change_data_source": This should contain information based on which datasource (top level json) you have made the change decision. It should only contain the json key.
 
     Additional your response should contain:
 
