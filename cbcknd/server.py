@@ -4,7 +4,7 @@ from flask import request, jsonify
 from llm import get_initial_training_plan, get_updated_training_plan
 
 
-from gcalendar import get_gc_service, get_gc_events
+from gcalendar import get_gc_service, get_gc_events, get_events_at_days
 
 from whoopy import WhoopClient
 from user_model import User
@@ -95,11 +95,7 @@ def create_app():
         print(updated_evs)
         # trigger LLM Update
 
-        blocked_time_slots = {
-            "18.09.2023": ["0:00 - 13:00", "16:00 - 23:00"],
-            "19.09.2023": ["0:00 - 12:00", "14:30 - 23:00"],
-            "20.09.2023": ["0:00 - 11:00", "13:00 - 23:00"]
-            }
+        blocked_time_slots = get_events_at_days()
 
         last_response = llm_responses[-1]
         print("Updating training plan...")
@@ -300,10 +296,11 @@ def create_app():
 
 
     def init_events():
-        global gc_service, event_dict
+        global gc_service, event_dict, blocked_time_slots
 
         gc_service = get_gc_service()
         gc_events = get_gc_events(gc_service)
+        blocked_time_slots = get_events_at_days()
 
         for event in gc_events:
             event_dict[event["id"]] = event
