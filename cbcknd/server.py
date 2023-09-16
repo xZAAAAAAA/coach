@@ -12,8 +12,9 @@ from response_model import ResponseModel
 
 
 def create_app():
-
     app = flask.Flask(__name__)
+
+    global event_dict, gc_service, tokens_dict, setup_dict, user_messages, user_profile, llm_responses, is_setup
 
     event_dict = {}
     gc_service = None
@@ -24,11 +25,9 @@ def create_app():
     llm_responses = []
     is_setup = False
 
-
     @app.route("/")
     def hello_world():
         return "Hello, World!"
-
 
     @app.route("/whoop", methods=["POST", "GET"])
     def whoop():
@@ -49,7 +48,6 @@ def create_app():
 
         return "Hello, World4!"
 
-
     @app.route("/calupdates", methods=["POST", "GET"])
     def calupdates():
         json_data = request.data.decode("utf-8")
@@ -64,9 +62,9 @@ def create_app():
 
         return "Hello, World2!"
 
-
     @app.route("/tokens", methods=["POST"])
     def receive_tokens():
+        global tokens_dict
 
         json_data = request.json
         print(json_data)
@@ -84,9 +82,9 @@ def create_app():
 
         return "Hello, Tokens!"
 
-
     @app.route("/setup", methods=["POST"])
     def receive_setup():
+        global setup_dict, user_profile, llm_responses, tokens_dict, is_setup
 
         user_profile.is_default = True
         # is_setup = False
@@ -105,11 +103,11 @@ def create_app():
         user_profile.sports = setup_dict["sports"]
         user_profile.training_objective = setup_dict["objective"]
 
-        if 'whoop' in tokens_dict and tokens_dict['whoop'] != '':
+        if "whoop" in tokens_dict and tokens_dict["whoop"] != "":
             wc = WhoopClient(tokens_dict["whoop"])
-            
+
             user_profile.name = wc.get_profile()["first_name"]
-            
+
             measurements = wc.get_body_measurement()
             user_profile.age = 30
             user_profile.weight = measurements["weight_kilogram"]
@@ -133,9 +131,9 @@ def create_app():
 
         return "Hello, Setup!"
 
-
     @app.route("/adapt", methods=["POST"])
     def receive_adapt():
+        global user_messages, llm_responses
 
         json_data = request.json
         print(json_data)
@@ -151,25 +149,29 @@ def create_app():
             last_user_message = user_messages[-1] if len(user_messages) > 0 else ""
             last_response = llm_responses[-1]
             print("Updating training plan...")
-            response = ResponseModel(get_updated_training_plan(user_profile=user_profile, user_message=last_user_message, last_response=last_response))
+            response = ResponseModel(
+                get_updated_training_plan(
+                    user_profile=user_profile,
+                    user_message=last_user_message,
+                    last_response=last_response,
+                )
+            )
             print(response.__dict__)
             llm_responses.append(response)
         return "Hello, Adapt!"
 
-
     @app.route("/setup-test", methods=["GET", "POST"])
     def receive_setup_test():
-
+        global setup_dict, user_profile, llm_responses
         print("Generating initial training plan...")
         response = ResponseModel(get_initial_training_plan(user_profile))
         print(response.__dict__)
         llm_responses.append(response)
         return "Hello, Setup Test!"
 
-
-
     @app.route("/adapt-test", methods=["GET", "POST"])
     def receive_adapt_test():
+        global llm_responses
 
         user_messages = ["My knee hurts!"]
 
@@ -183,15 +185,20 @@ def create_app():
             print(last_response)
             print(last_response.get_trainings_plan())
             print("Updating training plan...")
-            response = ResponseModel(get_updated_training_plan(user_profile=user_profile, user_message=last_user_message, last_response=last_response))
+            response = ResponseModel(
+                get_updated_training_plan(
+                    user_profile=user_profile,
+                    user_message=last_user_message,
+                    last_response=last_response,
+                )
+            )
             print(response.__dict__)
             llm_responses.append(response)
         return "Hello, Adapt Test!"
 
-
-
     @app.route("/state", methods=["POST", "GET"])
     def state():
+        global llm_responses, user_profile, is_setup
 
         if not is_setup:
             return jsonify({})
@@ -205,15 +212,14 @@ def create_app():
             print(llm_responses[-1].__dict__)
             print(llm_responses[-1].get_trainings_plan())
             tp = llm_responses[-1].__dict__
-            
+
         if not user_profile.is_default:
             tp["user"] = user_profile.to_dict()
 
         return jsonify(tp)
 
-
     def load_tokens():
-
+        global tokens_dict
         try:
             with open("c_w_tokens.json", "r") as fp:
                 tokens_dict = json.load(fp)
@@ -221,8 +227,8 @@ def create_app():
             print("no tokens file found")
             tokens_dict = {}
 
-
     def init_events():
+        global gc_service, event_dict
 
         gc_service = get_gc_service()
         gc_events = get_gc_events(gc_service)
@@ -230,8 +236,8 @@ def create_app():
         for event in gc_events:
             event_dict[event["id"]] = event
 
-
     def get_updated_events():
+        global gc_service, event_dict
 
         gc_events = get_gc_events(gc_service)
 
@@ -255,4 +261,4 @@ def create_app():
 
 if __name__ == "__main__":
     app = create_app()
-    app.run(host="0.0.0.0", port=5055)
+    app.run(host="0.0.0.0")
