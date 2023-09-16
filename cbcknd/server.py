@@ -14,6 +14,9 @@ from user_model import User
 def create_app():
     app = flask.Flask(__name__)
 
+    app.secret_key = 'BAD_SECRET_KEY'
+
+
     global event_dict, gc_service, tokens_dict, setup_dict, user_messages, user_profile, llm_responses, is_setup, blocked_time_slots, last_calendar_update
 
     event_dict = {}
