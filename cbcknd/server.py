@@ -1,20 +1,23 @@
 import time
 import flask
 import json
-from flask import request, jsonify
+from flask import request, jsonify, session
 from llm import get_initial_training_plan, get_updated_training_plan
 
 
 from gcalendar import get_gc_service, get_gc_events, get_events_at_days, add_event, clear_coach_events
 
-from whoopy import WhoopClient
+from whoopy import WhoopClient, activity_lookup
 from user_model import User
 
 
 def create_app():
     app = flask.Flask(__name__)
 
-    global event_dict, gc_service, tokens_dict, setup_dict, user_messages, user_profile, llm_responses, is_setup, blocked_time_slots
+    app.secret_key = 'BAD_SECRET_KEY'
+
+
+    global event_dict, gc_service, tokens_dict, setup_dict, user_messages, user_profile, llm_responses, is_setup, blocked_time_slots, last_calendar_update
 
     event_dict = {}
     gc_service = None
@@ -49,12 +52,7 @@ def create_app():
             print(workout)
             # trigger LLM Update
 
-            activity_lookup = {
-                -1: "Activity",
-                0: "Running",
-                1: "Cycling", 
-                32: "Squash"
-            }
+
             activity = activity_lookup[workout["sport_id"]]
             workout["sport_name"] = activity
 
@@ -83,40 +81,37 @@ def create_app():
         return "Hello, World4!"
 
 
-    @app.route("/calupdates", methods=["POST", "GET"])
-    def calupdates():
+    # @app.route("/calupdates", methods=["POST", "GET"])
+    # def calupdates():
 
-        global llm_responses, blocked_time_slots, last_calendar_update
-        
-        if time.time() - last_calendar_update < 60:
-            return ""
+    #     global llm_responses, blocked_time_slots, last_calendar_update
 
-        json_data = request.data.decode("utf-8")
+    #     if time.time() - last_calendar_update < 60:
+    #         return ""
 
-        print(request.headers)
+    #     updated_evs = get_updated_events()
+    #     print(updated_evs)
+    #     # trigger LLM Update
 
-        print(json_data)
+    #     if len(updated_evs) == 0:
+    #         return ""
 
-        updated_evs = get_updated_events()
-        print(updated_evs)
-        # trigger LLM Update
+    #     # blocked_time_slots = get_events_at_days(gc_service)
+    #     # if len(llm_responses) > 0:
+    #     #     last_response = llm_responses[-1]
+    #     #     print("Updating training plan...")
+    #     #     response = get_updated_training_plan(
+    #     #             user_profile=user_profile,
+    #     #             user_message="",
+    #     #             last_response=last_response,
+    #     #             whoop_update={},
+    #     #             blocked_time_slots=blocked_time_slots
+    #     #     )
+    #     #     print(response.__dict__)
+    #     #     update_calendar(response)
+    #     #     llm_responses.append(response)
 
-        blocked_time_slots = get_events_at_days(gc_service)
-        if len(llm_responses) > 0:
-            last_response = llm_responses[-1]
-            print("Updating training plan...")
-            response = get_updated_training_plan(
-                    user_profile=user_profile,
-                    user_message="",
-                    last_response=last_response,
-                    whoop_update={},
-                    blocked_time_slots=blocked_time_slots
-            )
-            print(response.__dict__)
-            update_calendar(response)
-            llm_responses.append(response)
-
-        return "Hello, World2!"
+    #     return "Hello, World2!"
     
 
     @app.route("/tokens", methods=["POST"])
@@ -336,6 +331,8 @@ def create_app():
     def update_calendar(response):
         global gc_service, last_calendar_update
 
+        session["cal_enter"] = "xD"
+
         if time.time() - last_calendar_update < 60:
             return
 
@@ -354,6 +351,8 @@ def create_app():
             )
 
         last_calendar_update = time.time()
+
+        session["cal_exit"] = "free"
 
 
     load_tokens()
