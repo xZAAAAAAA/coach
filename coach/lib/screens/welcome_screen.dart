@@ -1,3 +1,5 @@
+import 'package:coach/api/service.dart';
+import 'package:coach/api/whoop_client.dart';
 import 'package:coach/components/themed_button.dart';
 import 'package:coach/screens/objective_screen.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +14,12 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
+  bool _isWhoopAuthenticated = false;
+  String? _whoopToken;
+
   void _navigateToObjective() {
+    sendTokens(whoop: _whoopToken);
+
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const ObjectiveScreen()),
@@ -21,7 +28,28 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   void _authCalendar() {}
 
-  void _authWhoop() {}
+  void _authWhoop() async {
+    var client = WhoopClient(customUriScheme: '');
+    var response = await client.getTokenWithAuthCodeFlow(
+        clientId: '4a0e2745-5588-4c17-a109-ffdca04a1f98',
+        clientSecret:
+            '4b325183d2c2bb3bb0dddf7834289c458a915445efacb3bffa748d0dee6409b6',
+        scopes: [
+          'offline',
+          'read:recovery',
+          'read:cycles',
+          'read:sleep',
+          'read:workout',
+          'read:profile',
+          'read:body_measurement',
+        ]);
+    if (response.isValid()) {
+      setState(() {
+        _isWhoopAuthenticated = true;
+        _whoopToken = response.accessToken;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,13 +64,23 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   title: 'Authenticate Google Calendar',
                   onPressed: _authCalendar),
               const SizedBox(height: 16),
-              ThemedButton(title: 'Authenticate WHOOP', onPressed: _authWhoop),
-              const SizedBox(height: 128),
-              ThemedButton(title: 'Continue', onPressed: _navigateToObjective),
+              ThemedButton(
+                title: _isWhoopAuthenticated
+                    ? 'Authenticated WHOOP'
+                    : 'Authenticate WHOOP',
+                onPressed: _authWhoop,
+                isSuccess: _isWhoopAuthenticated,
+              ),
             ],
           ),
         ),
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _navigateToObjective,
+        label: const Text('Continue'),
+        extendedPadding: const EdgeInsets.symmetric(horizontal: 128),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }

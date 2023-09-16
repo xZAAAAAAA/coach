@@ -1,9 +1,10 @@
 import os
 import requests
+import prompt_templates
 
 from llama_cpp import Llama
 
-DEFAULT_MODEL = "https://huggingface.co/TheBloke/Llama-2-7B-GGUF/resolve/main/llama-2-7b.Q4_K_M.gguf"
+DEFAULT_MODEL = "https://huggingface.co/TheBloke/Llama-2-7b-Chat-GGUF/resolve/main/llama-2-7b-chat.Q4_K_M.gguf"
 MODEL_DIR = "llm_models"
 
 
@@ -23,16 +24,16 @@ def load_model(model=DEFAULT_MODEL):
             f.write(response.content)
         print("Downloaded model to", model_path)
 
-    return Llama(model_path=model_path)
+    return Llama(model_path=model_path, n_ctx=5000)
 
 
-def prompt_model(llm, prompt, num_tokens=1024):
-    resp = llm(prompt, max_tokens=num_tokens, stop=["Q:", "\n"], echo=True)
-
+def prompt_model(llm, prompt, num_tokens=10000):
+    resp = llm(prompt, max_tokens=num_tokens, echo=False)
+    print(resp)
     return resp["choices"][0]["text"]
 
 
 if __name__ == "__main__":
     model = load_model()
-    test_text = prompt_model(model, "Hello, my name is")
+    test_text = prompt_model(model, prompt_templates.UPDATE_PROMPT)
     print(test_text)
