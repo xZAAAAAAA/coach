@@ -46,6 +46,27 @@ def create_app():
             print(workout)
             # trigger LLM Update
 
+            del workout["score_state"]
+
+            whoop_update = {
+                "update": "whoop training finished",
+                "workout": workout
+            }
+
+            last_response = llm_responses[-1]
+            print("Updating training plan...")
+            response = ResponseModel(
+                get_updated_training_plan(
+                    user_profile=user_profile,
+                    user_message="",
+                    last_response=last_response,
+                    whoop_update=whoop_update,
+                    blocked_time_slots=[]
+                )
+            )
+            print(response.__dict__)
+            llm_responses.append(response)
+
         return "Hello, World4!"
 
     @app.route("/calupdates", methods=["POST", "GET"])
@@ -59,6 +80,22 @@ def create_app():
         updated_evs = get_updated_events()
         print(updated_evs)
         # trigger LLM Update
+
+        blocked_time_slots = []
+
+        last_response = llm_responses[-1]
+        print("Updating training plan...")
+        response = ResponseModel(
+            get_updated_training_plan(
+                user_profile=user_profile,
+                user_message="",
+                last_response=last_response,
+                whoop_update={},
+                blocked_time_slots=blocked_time_slots
+            )
+        )
+        print(response.__dict__)
+        llm_responses.append(response)
 
         return "Hello, World2!"
 
