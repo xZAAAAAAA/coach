@@ -8,6 +8,10 @@ app = flask.Flask(__name__)
 
 event_dict = {}
 gc_service = None
+tokens_dict = {}
+setup_dict = {}
+user_messages = []
+
 
 @app.route('/')
 def hello_world():
@@ -41,24 +45,22 @@ def receive_tokens():
             tokens_dict[k] = json_data[k]
         else:
             print("no token received for " + k)
-
     return 'Hello, Tokens!'
 
 
 @app.route('/setup', methods=['POST'])
 def receive_setup():
-    global setup
+    global setup_dict
     json_data = json.loads(request.data.decode('utf-8'))
     print(json_data)
     
-    setup["sports"] = []
-    setup["objective"] = ""
+    setup_dict["sports"] = []
+    setup_dict["objective"] = ""
 
     if "sports" in json_data:
-        setup["sports"] = json_data["sports"]
+        setup_dict["sports"] = json_data["sports"]
     if "objective" in json_data:
-        setup["objective"] = json_data["objective"]
-
+        setup_dict["objective"] = json_data["objective"]
 
     return 'Hello, Setup!'
 
@@ -76,15 +78,11 @@ def receive_adapt():
 
 
 def init_events():
-     global gc_service, event_dict, tokens_dict, setup
+     global gc_service, event_dict
 
      gc_service = get_gc_service()
 
      gc_events = get_gc_events(gc_service)
-     
-     tokens_dict = {}
-     setup = {}
-     user_messages = []
 
      for event in gc_events:
           event_dict[event['id']] = event
