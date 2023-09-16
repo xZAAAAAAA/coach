@@ -14,7 +14,7 @@ from user_model import User
 def create_app():
     app = flask.Flask(__name__)
 
-    global event_dict, gc_service, tokens_dict, setup_dict, user_messages, user_profile, llm_responses, is_setup, blocked_time_slots
+    global event_dict, gc_service, tokens_dict, setup_dict, user_messages, user_profile, llm_responses, is_setup, blocked_time_slots, last_calendar_update
 
     event_dict = {}
     gc_service = None
@@ -87,7 +87,7 @@ def create_app():
     def calupdates():
 
         global llm_responses, blocked_time_slots, last_calendar_update
-        
+
         if time.time() - last_calendar_update < 60:
             return ""
 
