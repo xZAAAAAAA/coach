@@ -236,7 +236,7 @@ def get_events_at_days(service, day_str=None, n_days=7):
 
 def add_event(service, day_str, time_str, dur_str, title, decr=""):
 
-    start_obj = datetime.datetime.strptime(day_str + " " + time_str, "%d.%m.%Y %H:%M:%S")
+    start_obj = datetime.datetime.strptime(day_str + " " + time_str, "%d.%m.%Y %H:%M")
 
     end_obj = start_obj + datetime.timedelta(minutes=int(dur_str))
 
@@ -269,8 +269,8 @@ def clear_coach_events(service):
 # 
 #
 if __name__ == "__main__":
-    # get_gc_events(get_gc_service())
+    get_gc_events(get_gc_service())
     # print(get_events_at_day(get_gc_service(), "18.09.2023"))
     # print(get_events_at_days(get_gc_service()))
     # add_event(get_gc_service(), "18.09.2023", "14:00:00", "120", "test")
-    clear_coach_events(get_gc_service())
+    # clear_coach_events(get_gc_service())
