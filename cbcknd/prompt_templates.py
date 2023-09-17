@@ -46,6 +46,7 @@ OUTPUT_FORMAT = """
     The "intensity" should be one of the following values ["low", "medium", "high"]
 
     Don't explicitly mention rest days or resting periods in the training plan. Don't include workouts with a duration of 0.
+    Make sure that the scheduled workouts do not overlap or collide with the blocked_time_slots.
 
 """
 
