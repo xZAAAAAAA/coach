@@ -134,7 +134,7 @@ def create_app():
                     print("Updating training plan...")
                     response = get_updated_training_plan(
                             user_profile=user_profile,
-                            user_message="",
+                            user_message="Please resolve the calendar conflicts.",
                             last_response=last_response,
                             whoop_update={},
                             blocked_time_slots=blocked_time_slots
