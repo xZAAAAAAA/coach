@@ -17,7 +17,7 @@ def create_app():
     app.secret_key = 'BAD_SECRET_KEY'
 
 
-    global event_dict, gc_service, tokens_dict, setup_dict, user_messages, user_profile, llm_responses, is_setup, blocked_time_slots, last_calendar_update, state_cntr
+    global event_dict, gc_service, tokens_dict, setup_dict, user_messages, user_profile, llm_responses, is_setup, blocked_time_slots, state_cntr
 
     event_dict = {}
     gc_service = None
@@ -28,7 +28,6 @@ def create_app():
     llm_responses = []
     is_setup = False
     blocked_time_slots = {}
-    last_calendar_update = 0
     state_cntr = 0
 
     @app.route("/")
@@ -318,12 +317,7 @@ def create_app():
 
 
     def update_calendar(response):
-        global gc_service, last_calendar_update
-
-        session["cal_enter"] = "xD"
-
-        if time.time() - last_calendar_update < 60:
-            return
+        global gc_service
 
         # Remove all workouts
         clear_coach_events(gc_service)
@@ -338,8 +332,6 @@ def create_app():
                 title=workout["title"],
                 decr=workout["summary"]
             )
-
-        last_calendar_update = time.time()
 
         session["cal_exit"] = "free"
 

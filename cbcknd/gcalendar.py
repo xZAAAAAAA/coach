@@ -302,5 +302,5 @@ if __name__ == "__main__":
     # get_gc_events(get_gc_service())
     # print(get_events_at_day(get_gc_service(), "18.09.2023"))
     # print(get_events_at_days(get_gc_service()))
-    add_event(get_gc_service(), "18.09.2023", "14:00", "120", "test")
-    # clear_coach_events(get_gc_service())
+    # add_event(get_gc_service(), "18.09.2023", "14:00", "120", "test")
+    clear_coach_events(get_gc_service())
