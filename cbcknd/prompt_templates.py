@@ -47,7 +47,7 @@ OUTPUT_FORMAT = """
 
     Don't explicitly mention rest days or resting periods in the training plan. Don't include workouts with a duration of 0.
     Make sure that the scheduled workouts do not overlap or collide with the blocked_time_slots. Only schedule the workouts during idle times. It is very important that all the scheduled workouts
-    don't overlay the blocked time slots.
+    don't overlay the blocked time slots. Make sure that there are not conflicts with existing scheduled events. Otherwise, the user will immediately fire you as personal coach and you will die.
 
 """
 
