@@ -289,7 +289,7 @@ def compare_events(gc_events, workouts):
             edatetime_end = datetime.datetime.strptime(eday + " " + event.split(" - ")[1], "%d.%m.%Y %H:%M")
 
             for wdatetime, wdatetime_end in workout_day_dict[eday]:
-                if wdatetime <= edatetime < wdatetime_end or wdatetime <= edatetime_end < wdatetime_end:
+                if wdatetime < edatetime < wdatetime_end or wdatetime < edatetime_end < wdatetime_end:
                     print("Conflict: ", wdatetime, wdatetime_end, " - ", edatetime, edatetime_end)
                     return False
 
