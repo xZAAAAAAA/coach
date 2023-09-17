@@ -114,10 +114,14 @@ def create_app():
     
 
     def resolve_cal_blocks():
+        print("Resolving calendar blocks...")
+
         global blocked_time_slots, gc_service, llm_responses, user_profile
         blocked_time_slots = get_events_at_days(gc_service)
 
         if len(llm_responses) > 0 and len(llm_responses['workouts']) > 0:
+
+            print("Checking for collisions in not empty training plan...")
 
             workouts = llm_responses['workouts']
 
