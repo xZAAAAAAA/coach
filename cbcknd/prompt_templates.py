@@ -46,7 +46,8 @@ OUTPUT_FORMAT = """
     The "intensity" should be one of the following values ["low", "medium", "high"]
 
     Don't explicitly mention rest days or resting periods in the training plan. Don't include workouts with a duration of 0.
-    Make sure that the scheduled workouts do not overlap or collide with the blocked_time_slots.
+    Make sure that the scheduled workouts do not overlap or collide with the blocked_time_slots. Only schedule the workouts during idle times. It is very important that all the scheduled workouts
+    don't overlay the blocked time slots.
 
 """
 
@@ -62,7 +63,7 @@ UPDATE_TASK = """
     "change_reason": A short explanation why the training plan should be changed.
     "change_data_source": This should contain information based on which datasource (top level json) you have made the change decision. It should only contain the json key.
 
-    Additional your response should contain:
+    Additionaly your response should contain:
 
 """
 
