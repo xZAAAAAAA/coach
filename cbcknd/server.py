@@ -249,53 +249,6 @@ def create_app():
         return "Hello, Adapt!"
     
 
-    @app.route("/setup-test", methods=["GET", "POST"])
-    def receive_setup_test():
-        global setup_dict, user_profile, llm_responses
-        print("Generating initial training plan...")
-        blocked_time_slots = {
-            "18.09.2023": ["0:00 - 13:00", "16:00 - 23:00"],
-            "19.09.2023": ["0:00 - 12:00", "14:30 - 23:00"],
-            "20.09.2023": ["0:00 - 11:00", "13:00 - 23:00"]
-            }
-        response = get_initial_training_plan(user_profile, get_initial_training_plan(user_profile))
-        print(response.__dict__)
-        update_calendar(response)
-        llm_responses.append(response)
-        return "Hello, Setup Test!"
-    
-
-    @app.route("/adapt-test", methods=["GET", "POST"])
-    def receive_adapt_test():
-        global llm_responses, blocked_time_slots
-
-        user_messages = ["My knee hurts!"]
-
-        if len(llm_responses) == 0:
-            print("SHIT HAPPENED! NO EXISTING TRAINING PLAN AVAILABLE")
-            print("Generating initial training plan...")
-            response = get_initial_training_plan(user_profile, blocked_time_slots)
-            update_calendar(response)
-            llm_responses.append(response)
-        else:
-            last_user_message = user_messages[-1] if len(user_messages) > 0 else ""
-            last_response = llm_responses[-1]
-            print(last_response)
-            print(last_response.get_trainings_plan())
-            print("Updating training plan...")
-            response = get_updated_training_plan(
-                    user_profile=user_profile,
-                    user_message=last_user_message,
-                    last_response=last_response,
-                    whoop_update={},
-                    blocked_time_slots=blocked_time_slots
-            )
-            update_calendar(response)
-            print(response.__dict__)
-            llm_responses.append(response)
-        return "Hello, Adapt Test!"
-
-
     @app.route("/state", methods=["POST", "GET"])
     def state():
         global llm_responses, user_profile, is_setup, state_cntr
@@ -303,7 +256,8 @@ def create_app():
         state_cntr += 1
 
         if state_cntr % 10 == 0:
-            resolve_cal_blocks()
+            pass
+            # resolve_cal_blocks()
 
         if not is_setup:
             return jsonify({})
