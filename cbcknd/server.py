@@ -125,10 +125,10 @@ def create_app():
 
             workouts = llm_responses[-1].workouts
 
-            is_collision = compare_events(blocked_time_slots, workouts)
-            print("is_collision", is_collision)
+            no_collision = compare_events(blocked_time_slots, workouts)
+            print("no_collision", no_collision)
 
-            if is_collision:
+            if not no_collision:
                 if len(llm_responses) > 0:
                     last_response = llm_responses[-1]
                     print("Updating training plan...")
