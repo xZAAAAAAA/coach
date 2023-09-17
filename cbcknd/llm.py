@@ -29,7 +29,7 @@ def get_updated_training_plan(user_profile, user_message, last_response, whoop_u
 
 def ask_llm(prompt):
     openai.api_key = "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"
-    output = openai.ChatCompletion.create(model="gpt-4", messages=[{"role": "user", "content": prompt}])
+    output = openai.ChatCompletion.create(model="gpt-4", messages=[{"role": "user", "content": prompt}, temperature=0.2])
     return output["choices"][0]["message"]["content"]
 
 
